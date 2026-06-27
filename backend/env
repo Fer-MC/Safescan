@@ -1,3 +1,0 @@
-cd backend
-echo "ANTHROPIC_API_KEY="sk-ant-tu-clave-real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 > .env
-cd .. && cd backend && uvicorn main:app --host 0.0.0.0 --port 8080
