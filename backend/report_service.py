@@ -13,23 +13,26 @@ from datetime import datetime
 from io import BytesIO
 
 from docx import Document
-from docx.shared import Pt, RGBColor
+from docx.shared import Pt, RGBColor, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 from i18n import CLASIF_LABEL, CONF_LABEL, normalize_lang, report_strings
 
 # Paleta IMAFORT
-AZUL    = RGBColor(0x1B, 0x2F, 0x4E)   # Navy #1B2F4E
-NARANJA = RGBColor(0xE8, 0x61, 0x1A)   # Naranja seguridad #E8611A
-GRIS    = RGBColor(0x4A, 0x55, 0x68)   # Gris acero #4A5568
+AZUL    = RGBColor(0x1B, 0x2F, 0x4E)
+NARANJA = RGBColor(0xE8, 0x61, 0x1A)
+GRIS    = RGBColor(0x4A, 0x55, 0x68)
 
-# Color de fondo de celda por clasificación — paleta IMAFORT
+# Color de fondo de celda por clasificación
 COLOR_CLASIF = {
-    "critical":  "F5B7B1",   # fondo suave rojo  → borde #A32D2D
-    "important": "FAE5D3",   # fondo suave naranja → borde #E8611A
-    "minor":     "FCF3CF",   # fondo suave amarillo
-    "conform":   "D4EFDF",   # fondo suave verde  → borde #3B6D11
+    "critical":  "F5B7B1",
+    "important": "FAE5D3",
+    "minor":     "FCF3CF",
+    "conform":   "D4EFDF",
 }
+
+# Ancho columna etiqueta — la columna valor ocupa el resto
+COL1_CM = 4.5
 
 
 def _heading(doc, text, size=14, color=AZUL, space_before=10):
@@ -50,13 +53,19 @@ def generar_informe(
     responsable: str = "",
     lang: str = "es",
 ) -> BytesIO:
-    """Genera el .docx en memoria a partir del análisis normalizado."""
     lang = normalize_lang(lang)
     T = report_strings(lang)
     clabel = CLASIF_LABEL[lang]
     conflabel = CONF_LABEL[lang]
 
     doc = Document()
+
+    # Márgenes
+    for section in doc.sections:
+        section.left_margin = Cm(2.5)
+        section.right_margin = Cm(2.5)
+
+    col2_cm = 16.0 - COL1_CM  # 11.5 cm
 
     # --- Cabecera ---
     titulo = doc.add_paragraph()
@@ -83,13 +92,6 @@ def generar_informe(
         parts.append(f"{T['inspector']}: {responsable}")
     meta.add_run("  ·  ".join(parts)).font.size = Pt(9)
 
-    # --- Aviso legal (discreto, al final del encabezado) ---
-    _heading(doc, T["legal_heading"], size=11, color=GRIS)
-    d = doc.add_paragraph()
-    dr = d.add_run(T["legal"])
-    dr.font.size = Pt(8)
-    dr.italic = True
-
     # --- Resumen ---
     _heading(doc, T["summary_heading"])
     doc.add_paragraph(analisis.get("resumen") or T["no_summary"])
@@ -108,10 +110,11 @@ def generar_informe(
             tabla = doc.add_table(rows=0, cols=2)
             tabla.style = "Light Grid Accent 1"
 
-            def fila(k, v):
+            def fila(k, v, _c1=COL1_CM, _c2=col2_cm):
                 cells = tabla.add_row().cells
-                kp = cells[0].paragraphs[0]
-                kr = kp.add_run(k)
+                cells[0].width = Cm(_c1)
+                cells[1].width = Cm(_c2)
+                kr = cells[0].paragraphs[0].add_run(k)
                 kr.bold = True
                 kr.font.size = Pt(9)
                 cells[1].paragraphs[0].add_run(str(v)).font.size = Pt(9)
@@ -128,16 +131,27 @@ def generar_informe(
             fila(T["f_norm"], ", ".join(obs.get("normativa", [])) or "—")
             fila(T["f_conf"], conflabel.get(obs.get("confianza", "medium")))
 
-    # --- Limitaciones ---
+    # --- Limitaciones (pequeñas y en cursiva) ---
     _heading(doc, T["limits_heading"])
     for lim in analisis.get("limitaciones", []) or [T["no_limits"]]:
-        doc.add_paragraph(lim, style="List Bullet")
+        p = doc.add_paragraph(style="List Bullet")
+        run = p.add_run(lim)
+        run.font.size = Pt(8)
+        run.italic = True
 
     # --- Validación / firma ---
     _heading(doc, T["valid_heading"])
     doc.add_paragraph(T["valid_text"])
     firma = doc.add_paragraph()
     firma.add_run("\n\n" + T["sign_line"])
+
+    # --- Aviso legal al final (sin heading, discreto) ---
+    p_legal = doc.add_paragraph()
+    p_legal.paragraph_format.space_before = Pt(16)
+    run_legal = p_legal.add_run(T["legal"])
+    run_legal.font.size = Pt(7.5)
+    run_legal.italic = True
+    run_legal.font.color.rgb = GRIS
 
     buffer = BytesIO()
     doc.save(buffer)
@@ -146,7 +160,6 @@ def generar_informe(
 
 
 def _shade_cell(cell, hex_color: str):
-    """Aplica color de fondo a una celda (python-docx no lo expone directamente)."""
     from docx.oxml.ns import qn
     from docx.oxml import OxmlElement
 
