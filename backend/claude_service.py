@@ -135,7 +135,7 @@ def analizar_imagen(
 
     lang = normalize_lang(lang)
     client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
-    model = model or settings.MODEL_FREE
+    model = model or settings.MODEL_PRO
 
     try:
         response = client.messages.create(
