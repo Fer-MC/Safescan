@@ -1,5 +1,5 @@
 """
-main.py — Aplicación FastAPI de H&S Detect.
+main.py — Aplicación FastAPI de IMAFORT.
 
 INICIO:
   1. Carga .env (ANTHROPIC_API_KEY)
@@ -9,7 +9,7 @@ INICIO:
 ENDPOINTS:
   GET  /              -> index.html (frontend)
   GET  /api/health    -> estado del servicio
-  POST /api/analyze   -> inspecciona imagen con Claude Vision (param: lang)
+  POST /api/analyze   -> analiza imagen con Claude Vision (param: lang)
   POST /api/report    -> genera informe Word (param: lang)
 
 CÓMO PROBAR LOCALMENTE:
@@ -45,12 +45,11 @@ from report_service import generar_informe
 from i18n import normalize_lang
 
 logging.basicConfig(level=logging.INFO if not settings.debug else logging.DEBUG)
-logger = logging.getLogger("hs_detect")
+logger = logging.getLogger("imafort")
 
 app = FastAPI(title=settings.app_name)
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
-COOKIE_NAME = "hs_free_used"
 
 
 @app.on_event("startup")
@@ -72,26 +71,13 @@ async def health():
     return {"status": "ok" if not problems else "config_error", "issues": problems}
 
 
-# --- Inspección ------------------------------------------------------------
+# --- Análisis --------------------------------------------------------------
 @app.post("/api/analyze")
 async def analyze(
     request: Request,
     file: UploadFile = File(...),
     lang: str = Form("es"),
 ):
-    used = _read_used(request)
-    if used >= settings.free_analyses_limit:
-        return JSONResponse(
-            status_code=402,
-            content={
-                "error": "limit_reached",
-                "message": (
-                    "Has agotado tus análisis gratuitos. Crea una cuenta para "
-                    "seguir analizando."
-                ),
-            },
-        )
-
     if file.content_type not in settings.allowed_mime:
         return JSONResponse(
             status_code=415,
@@ -121,9 +107,7 @@ async def analyze(
             content={"error": "internal", "message": "Error inesperado al analizar la imagen."},
         )
 
-    resp = JSONResponse(content={"data": resultado, "free_remaining": settings.free_analyses_limit - used - 1})
-    _write_used(resp, used + 1)
-    return resp
+    return JSONResponse(content={"data": resultado})
 
 
 # --- Informe Word ----------------------------------------------------------
@@ -154,19 +138,4 @@ async def report(
         buffer,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
-    )
-
-
-# --- Helpers ---------------------------------------------------------------
-def _read_used(request: Request) -> int:
-    try:
-        return int(request.cookies.get(COOKIE_NAME, "0"))
-    except ValueError:
-        return 0
-
-
-def _write_used(response: Response, value: int):
-    response.set_cookie(
-        COOKIE_NAME, str(value),
-        max_age=60 * 60 * 24 * 365, httponly=True, samesite="lax",
     )
