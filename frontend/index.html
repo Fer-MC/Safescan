@@ -3,29 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>H&S Detect — Inspección de seguridad con IA</title>
+<title>IMAFORT — Informes de seguridad con IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --azul: #1a2f4e;
-    --azul-700: #23416b;
-    --verde: #2ecc71;
-    --verde-600: #27ae60;
-    --ambar: #f4a259;
-    --bg: #f5f7fa;
-    --surface: #ffffff;
-    --text: #1a2333;
-    --muted: #5b6b82;
-    --border: #e3e8ef;
+    --azul:     #1B2F4E;
+    --azul-700: #243f6a;
+    --naranja:  #E8611A;
+    --naranja-600: #c9521a;
+    --gris:     #4A5568;
+    --bg:       #F7F8FA;
+    --surface:  #ffffff;
+    --text:     #1A202C;
+    --muted:    #4A5568;
+    --border:   #e3e8ef;
     /* niveles de observación */
-    --c-critical: #f5b7b1;  --c-critical-b: #c0392b;
-    --c-important: #fae5d3; --c-important-b: #e67e22;
-    --c-minor: #fcf3cf;     --c-minor-b: #d4ac0d;
-    --c-conform: #d4efdf;   --c-conform-b: #27ae60;
+    --c-critical:   #f5b7b1;  --c-critical-b:   #A32D2D;
+    --c-important:  #fae5d3;  --c-important-b:  #E8611A;
+    --c-minor:      #fcf3cf;  --c-minor-b:      #d4ac0d;
+    --c-conform:    #d4efdf;  --c-conform-b:    #3B6D11;
     --radius: 14px;
-    --shadow: 0 4px 24px rgba(26,47,78,.08);
+    --shadow: 0 4px 24px rgba(27,47,78,.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -39,182 +39,165 @@
   header {
     background: var(--azul);
     color: #fff; padding: 1rem 1.25rem;
-    display: flex; align-items: center; gap: .65rem;
-    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; gap: .85rem;
+    position: sticky; top: 0; z-index: 30;
+    box-shadow: 0 2px 12px rgba(0,0,0,.18);
   }
   .logo-mark {
-    width: 34px; height: 34px; border-radius: 9px;
-    background: linear-gradient(135deg, var(--verde), var(--verde-600));
-    display: grid; place-items: center; flex: none;
+    width: 36px; height: 36px; background: var(--naranja);
+    border-radius: 9px; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0;
   }
   .logo-mark svg { width: 20px; height: 20px; }
-  header h1 { font-size: 1.15rem; font-weight: 800; letter-spacing: -.01em; }
-  header .tag { font-size: .7rem; color: #9db4d4; font-weight: 500; }
-  .header-right { margin-left: auto; display: flex; align-items: center; gap: .6rem; }
-  .free-pill {
-    font-size: .72rem; font-weight: 600;
-    background: rgba(255,255,255,.12); padding: .35rem .7rem; border-radius: 999px;
-    white-space: nowrap;
-  }
+  header h1 { font-size: 1.15rem; font-weight: 800; letter-spacing: -.02em; flex: 1; }
+  .tag { font-size: .7rem; color: rgba(255,255,255,.65); margin-top: .1rem; }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: .5rem; }
 
-  /* --- Menú hamburguesa / idioma --- */
+  /* --- Menú hamburguesa --- */
   .menu-wrap { position: relative; }
   .menu-btn {
-    width: 38px; height: 38px; border-radius: 10px; border: none; cursor: pointer;
-    background: rgba(255,255,255,.12); color: #fff;
-    display: grid; place-items: center; transition: background .2s;
+    background: rgba(255,255,255,.12); border: none; border-radius: 8px;
+    color: #fff; width: 36px; height: 36px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
   }
-  .menu-btn:hover { background: rgba(255,255,255,.22); }
-  .menu-btn svg { width: 20px; height: 20px; }
+  .menu-btn svg { width: 18px; height: 18px; }
   .menu {
-    position: absolute; right: 0; top: 46px; min-width: 180px;
+    display: none; position: absolute; top: calc(100% + 8px); right: 0;
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; box-shadow: 0 12px 40px rgba(26,47,78,.18);
-    padding: .5rem; opacity: 0; visibility: hidden; transform: translateY(-6px);
-    transition: opacity .18s, transform .18s, visibility .18s; z-index: 30;
+    border-radius: 12px; box-shadow: var(--shadow);
+    min-width: 160px; overflow: hidden; z-index: 40;
   }
-  .menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
-  .menu-label {
-    font-size: .68rem; text-transform: uppercase; letter-spacing: .07em;
-    color: var(--muted); font-weight: 700; padding: .4rem .6rem .25rem;
-  }
+  .menu.open { display: block; }
+  .menu-label { font-size: .72rem; font-weight: 600; color: var(--muted);
+    padding: .6rem 1rem .3rem; text-transform: uppercase; letter-spacing: .05em; }
   .lang-opt {
-    display: flex; align-items: center; gap: .6rem; width: 100%;
-    background: none; border: none; cursor: pointer; text-align: left;
-    font-family: inherit; font-size: .9rem; color: var(--text);
-    padding: .55rem .6rem; border-radius: 8px; transition: background .15s;
+    display: flex; align-items: center; gap: .6rem;
+    width: 100%; background: none; border: none; cursor: pointer;
+    padding: .6rem 1rem; font-size: .9rem; color: var(--text); text-align: left;
   }
-  .lang-opt:hover { background: #f1f5f9; }
-  .lang-opt .code {
-    font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: .78rem;
-    background: #eef2f7; color: var(--azul-700);
-    padding: .12rem .4rem; border-radius: 5px; min-width: 30px; text-align: center;
-  }
-  .lang-opt.active { background: #f6fdf9; }
-  .lang-opt.active .code { background: var(--verde); color: #073d20; }
+  .lang-opt:hover { background: var(--bg); }
+  .lang-opt.active { color: var(--naranja); font-weight: 600; }
+  .lang-opt .code { font-family: 'JetBrains Mono', monospace; font-size: .75rem;
+    background: var(--bg); border-radius: 5px; padding: .1rem .4rem; }
 
-  main { max-width: 820px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+  /* --- Main --- */
+  main { max-width: 540px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
 
+  /* --- Aviso legal (discreto, abajo) --- */
   .legal {
-    background: #fff7ed; border: 1px solid #fed7aa;
-    color: #7c4a16; font-size: .8rem; padding: .75rem .9rem;
-    border-radius: 10px; margin-bottom: 1.5rem;
-    display: flex; gap: .55rem; align-items: flex-start;
+    font-size: .72rem; color: var(--muted); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: .6rem .9rem; margin-bottom: 1.2rem;
+    display: flex; gap: .4rem; align-items: flex-start;
   }
-  .legal strong { font-weight: 700; }
 
-  .hero h2 { font-size: 1.65rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
-  .hero p { color: var(--muted); margin-top: .4rem; max-width: 52ch; }
+  /* --- Hero --- */
+  .hero { margin-bottom: 1.5rem; }
+  .hero h2 { font-size: 1.45rem; font-weight: 800; line-height: 1.25;
+    letter-spacing: -.02em; color: var(--azul); }
+  .hero p { margin-top: .5rem; font-size: .9rem; color: var(--muted); }
 
+  /* --- Dropzone --- */
   .dropzone {
-    margin-top: 1.5rem; border: 2px dashed var(--border);
-    background: var(--surface); border-radius: var(--radius);
-    padding: 2.5rem 1.5rem; text-align: center; cursor: pointer;
-    transition: border-color .2s, background .2s, transform .15s;
+    border: 2px dashed var(--border); border-radius: var(--radius);
+    background: var(--surface); padding: 2.2rem 1.5rem;
+    text-align: center; cursor: pointer; transition: border-color .2s, background .2s;
   }
-  .dropzone:hover, .dropzone.drag { border-color: var(--verde); background: #f6fdf9; }
-  .dropzone:active { transform: scale(.995); }
-  .dz-icon {
-    width: 52px; height: 52px; margin: 0 auto .8rem; border-radius: 14px;
-    background: #eef6ff; color: var(--azul); display: grid; place-items: center;
-  }
-  .dz-icon svg { width: 26px; height: 26px; }
-  .dropzone h3 { font-size: 1rem; font-weight: 600; }
-  .dropzone .hint { color: var(--muted); font-size: .82rem; margin-top: .25rem; }
-  input[type=file] { display: none; }
+  .dropzone:hover, .dropzone.drag { border-color: var(--naranja); background: #fff7f3; }
+  .dz-icon { margin-bottom: .75rem; }
+  .dz-icon svg { width: 40px; height: 40px; stroke: var(--naranja); opacity: .7; }
+  .dropzone h3 { font-size: 1rem; font-weight: 600; margin-bottom: .35rem; }
+  .dropzone .hint { font-size: .78rem; color: var(--muted); }
+  .dropzone input[type=file] { display: none; }
 
-  .preview-wrap { margin-top: 1.25rem; display: none; }
+  /* --- Preview --- */
+  .preview-wrap { display: none; }
   .preview-wrap.show { display: block; }
   .preview {
     position: relative; border-radius: var(--radius); overflow: hidden;
-    box-shadow: var(--shadow); background: #000;
+    background: #000; margin-bottom: .85rem;
   }
-  .preview img { width: 100%; display: block; max-height: 460px; object-fit: contain; }
+  .preview img { width: 100%; display: block; max-height: 320px; object-fit: contain; }
   .scanline {
-    position: absolute; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, transparent, var(--verde), transparent);
-    box-shadow: 0 0 16px 3px rgba(46,204,113,.55);
-    opacity: 0; pointer-events: none;
+    position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--naranja), transparent);
+    animation: scan 1.8s ease-in-out infinite; opacity: 0;
   }
-  .preview.scanning .scanline { opacity: 1; animation: scan 1.6s ease-in-out infinite; }
-  .preview.scanning::after {
-    content: ""; position: absolute; inset: 0;
-    background: rgba(26,47,78,.35);
-  }
-  @keyframes scan { 0% { top: 2%; } 50% { top: 96%; } 100% { top: 2%; } }
-  @media (prefers-reduced-motion: reduce) {
-    .preview.scanning .scanline { animation: none; top: 50%; }
-  }
+  .preview.scanning .scanline { opacity: 1; }
+  @keyframes scan { 0%,100%{top:0} 50%{top:calc(100% - 3px)} }
   .scan-status {
-    position: absolute; bottom: 12px; left: 12px; z-index: 2;
-    color: #fff; font-size: .8rem; font-weight: 600;
-    display: none; align-items: center; gap: .5rem;
+    position: absolute; bottom: 0; left: 0; width: 100%;
+    background: rgba(0,0,0,.55); color: #fff;
+    font-size: .8rem; padding: .5rem .75rem;
+    display: flex; align-items: center; gap: .5rem;
+    opacity: 0; transition: opacity .25s;
   }
-  .preview.scanning .scan-status { display: flex; }
+  .preview.scanning .scan-status { opacity: 1; }
   .spinner {
-    width: 15px; height: 15px; border: 2px solid rgba(255,255,255,.35);
-    border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite;
+    width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin .7s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* --- Botones --- */
+  .actions { display: flex; gap: .6rem; margin-bottom: .5rem; }
   .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-    font-family: inherit; font-weight: 600; font-size: .92rem;
-    border: none; border-radius: 11px; padding: .8rem 1.3rem; cursor: pointer;
-    transition: transform .12s, box-shadow .2s, background .2s;
+    flex: 1; padding: .75rem 1rem; border: none; border-radius: 10px;
+    font-family: inherit; font-size: .9rem; font-weight: 600;
+    cursor: pointer; transition: background .18s, opacity .18s;
   }
-  .btn:active { transform: translateY(1px); }
-  .btn-primary { background: var(--verde); color: #073d20; }
-  .btn-primary:hover { background: var(--verde-600); color: #fff; }
-  .btn-primary:disabled { background: #b8d8c5; color: #6b8a78; cursor: not-allowed; }
-  .btn-ghost { background: var(--surface); color: var(--azul); border: 1px solid var(--border); }
-  .btn-ghost:hover { border-color: var(--azul); }
-  .actions { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: .65rem; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--naranja); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--naranja-600); }
+  .btn-ghost { background: var(--surface); color: var(--text);
+    border: 1px solid var(--border); flex: 0 0 auto; padding: .75rem 1.1rem; }
+  .btn-ghost:hover { background: var(--bg); }
 
-  .results { display: none; margin-top: 2rem; }
-  .results.show { display: block; animation: fadeUp .4s ease both; }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-
+  /* --- Resultados --- */
+  .results { display: none; }
+  .results.show { display: block; }
   .summary {
     background: var(--azul); color: #fff; border-radius: var(--radius);
-    padding: 1.25rem 1.4rem; display: flex; gap: 1.2rem; align-items: center;
+    padding: 1.1rem 1.25rem; margin-bottom: 1rem;
+    display: flex; align-items: flex-start; gap: 1rem;
   }
-  .summary .count { font-size: 2.4rem; font-weight: 800; line-height: 1; }
-  .summary .count small { display: block; font-size: .68rem; font-weight: 500; color: #9db4d4; }
-  .summary p { font-size: .9rem; color: #d6e2f2; }
+  .count { font-size: 2.2rem; font-weight: 800; line-height: 1;
+    flex-shrink: 0; color: var(--naranja); }
+  .count small { display: block; font-size: .6rem; font-weight: 600;
+    letter-spacing: .08em; color: rgba(255,255,255,.65); margin-top: .15rem; }
+  .summary p { font-size: .88rem; color: rgba(255,255,255,.85); padding-top: .15rem; }
+  .section-title { font-size: .72rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: .6rem; }
 
-  .section-title { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em;
-    color: var(--muted); font-weight: 700; margin: 1.75rem 0 .75rem; }
-
+  /* --- Tarjetas de observación --- */
   .risk {
     background: var(--surface); border: 1px solid var(--border);
-    border-left: 5px solid var(--border); border-radius: 12px;
-    padding: 1.1rem 1.2rem; margin-bottom: .9rem;
+    border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: .75rem;
+    border-left: 4px solid var(--border);
   }
-  .risk-head { display: flex; align-items: flex-start; gap: .75rem; flex-wrap: wrap; }
-  .risk-head h4 { font-size: 1.02rem; font-weight: 700; flex: 1; min-width: 60%; }
+  .risk[data-c=critical]  { border-left-color: var(--c-critical-b);  background: #fff8f8; }
+  .risk[data-c=important] { border-left-color: var(--c-important-b); background: #fffaf7; }
+  .risk[data-c=minor]     { border-left-color: var(--c-minor-b);     background: #fffef5; }
+  .risk[data-c=conform]   { border-left-color: var(--c-conform-b);   background: #f7fff9; }
+  .risk-head { display: flex; align-items: flex-start; gap: .5rem; margin-bottom: .4rem; }
+  .risk-head h4 { font-size: .93rem; font-weight: 600; flex: 1; }
   .badge {
-    font-size: .68rem; font-weight: 700; padding: .25rem .6rem; border-radius: 999px;
-    text-transform: uppercase; letter-spacing: .03em; white-space: nowrap;
+    font-size: .68rem; font-weight: 700; padding: .2rem .55rem;
+    border-radius: 6px; white-space: nowrap; flex-shrink: 0;
   }
-  .risk[data-c="critical"]  { border-left-color: var(--c-critical-b); }
-  .risk[data-c="important"] { border-left-color: var(--c-important-b); }
-  .risk[data-c="minor"]     { border-left-color: var(--c-minor-b); }
-  .risk[data-c="conform"]   { border-left-color: var(--c-conform-b); }
-  .b-critical  { background: var(--c-critical);  color: #8c2620; }
-  .b-important { background: var(--c-important); color: #a8540f; }
-  .b-minor     { background: var(--c-minor);     color: #8a6d0b; }
-  .b-conform   { background: var(--c-conform);   color: #1d6b42; }
-
-  .risk p.desc { color: var(--text); font-size: .9rem; margin: .55rem 0; }
-  .risk .meta { display: flex; flex-wrap: wrap; gap: .4rem .9rem; font-size: .78rem; color: var(--muted); margin-bottom: .5rem; }
-  .risk .meta b { color: var(--text); font-weight: 600; }
-  .risk ul { margin: .4rem 0 0 1.1rem; font-size: .86rem; }
-  .risk ul li { margin-bottom: .2rem; }
-  .norm { margin-top: .55rem; }
-  .norm span { display: inline-block; background: #eef2f7; color: var(--azul-700);
-    font-size: .72rem; padding: .2rem .55rem; border-radius: 6px; margin: .15rem .25rem 0 0; }
-  .verify { font-size: .74rem; color: var(--ambar); font-weight: 600; margin-top: .5rem; }
+  .b-critical  { background: var(--c-critical);  color: var(--c-critical-b); }
+  .b-important { background: var(--c-important); color: var(--c-important-b); }
+  .b-minor     { background: var(--c-minor);     color: var(--c-minor-b); }
+  .b-conform   { background: var(--c-conform);   color: var(--c-conform-b); }
+  .desc { font-size: .86rem; color: var(--text); margin-bottom: .5rem; }
+  .meta { display: flex; flex-wrap: wrap; gap: .35rem .75rem;
+    font-size: .78rem; color: var(--muted); margin-bottom: .5rem; }
+  ul { margin-left: 1.1rem; font-size: .84rem; color: var(--text); margin-bottom: .5rem; }
+  .norm { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .4rem; }
+  .norm span { font-size: .72rem; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: .2rem .55rem; margin: .15rem .25rem 0 0; }
+  .verify { font-size: .74rem; color: var(--naranja); font-weight: 600; margin-top: .5rem; }
 
   .limits {
     background: #fffdf5; border: 1px solid #f0e6c8; border-radius: 12px;
@@ -230,7 +213,7 @@
   .field label { font-size: .78rem; font-weight: 600; color: var(--muted); }
   .field input { font-family: inherit; font-size: .9rem; padding: .6rem .75rem;
     border: 1px solid var(--border); border-radius: 9px; }
-  .field input:focus { outline: 2px solid var(--verde); border-color: transparent; }
+  .field input:focus { outline: 2px solid var(--naranja); border-color: transparent; }
 
   .toast {
     position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%) translateY(120%);
@@ -239,7 +222,7 @@
     transition: transform .3s ease; max-width: 90vw;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.err { background: #c0392b; }
+  .toast.err { background: #A32D2D; }
 
   footer { text-align: center; color: var(--muted); font-size: .76rem; padding: 2rem 1rem; }
 </style>
@@ -247,16 +230,15 @@
 <body>
 <header>
   <div class="logo-mark">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#073d20" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/>
     </svg>
   </div>
   <div>
-    <h1>H&S Detect</h1>
-    <div class="tag" data-i18n="tagline">Inspección de seguridad con IA</div>
+    <h1>IMAFORT</h1>
+    <div class="tag" data-i18n="tagline"></div>
   </div>
   <div class="header-right">
-    <div class="free-pill" id="freePill"></div>
     <div class="menu-wrap">
       <button class="menu-btn" id="menuBtn" aria-label="Menú" aria-haspopup="true" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -274,11 +256,6 @@
 </header>
 
 <main>
-  <div class="legal">
-    <span aria-hidden="true">⚠️</span>
-    <span data-i18n="legal"></span>
-  </div>
-
   <section class="hero">
     <h2 data-i18n="hero_title"></h2>
     <p data-i18n="hero_sub"></p>
@@ -338,6 +315,11 @@
       <button class="btn btn-primary" id="reportBtn" data-i18n="btn_report"></button>
     </div>
   </section>
+
+  <div class="legal">
+    <span aria-hidden="true">ℹ️</span>
+    <span data-i18n="legal"></span>
+  </div>
 </main>
 
 <div class="toast" id="toast"></div>
@@ -351,37 +333,35 @@
   const I18N = {
     es: {
       htmlLang: "es",
-      tagline: "Inspección de seguridad con IA",
-      legalHTML: "<strong>Herramienta de apoyo.</strong> Esta inspección visual automática no sustituye la evaluación de riesgos legal (Ley 31/1995, RD 39/1997), que debe realizar personal cualificado. Registra observaciones de seguridad visibles.",
-      hero_title: "Inspecciona la seguridad de tu planta en segundos",
-      hero_sub: "Saca una foto del puesto o área de trabajo. La IA registra observaciones de seguridad visibles, las clasifica por severidad y prepara un informe de inspección.",
+      tagline: "Informes de seguridad industrial con IA",
+      legal: "Herramienta de apoyo para la realización de informes de seguridad. No sustituye la evaluación de riesgos legal (Ley 31/1995, RD 39/1997). La validación presencial es responsabilidad del técnico firmante.",
+      hero_title: "Genera tu informe de seguridad en segundos",
+      hero_sub: "Fotografía el puesto o área de trabajo con tu móvil. La IA identifica observaciones de seguridad, las clasifica por severidad y genera un informe Word listo para firmar.",
       dz_title: "Arrastra una imagen o haz clic para subir",
       dz_hint: "JPG, PNG o WEBP · máx. 5 MB",
-      btn_analyze: "Inspeccionar imagen",
-      btn_analyzing: "Inspeccionando…",
+      btn_analyze: "Analizar imagen",
+      btn_analyzing: "Analizando…",
       btn_change: "Cambiar imagen",
-      scan_text: "Inspeccionando…",
+      scan_text: "Analizando…",
       obs_label: "OBSERVACIONES",
       obs_section: "Observaciones de seguridad",
-      summary_done: "Inspección completada.",
+      summary_done: "Análisis completado.",
       no_obs: "No se registraron observaciones visibles. Esto no garantiza la ausencia de riesgos: revisa siempre presencialmente.",
-      limits_title: "⚠️ Lo que esta inspección NO puede ver",
-      report_title: "📄 Generar informe de inspección (Word)",
+      limits_title: "⚠️ Lo que este análisis NO puede ver",
+      report_title: "📄 Generar informe Word",
       f_company: "Empresa (opcional)", ph_company: "Mi Empresa S.L.",
-      f_site: "Centro de trabajo (opcional)", ph_site: "Planta de Igualada",
-      f_inspector: "Responsable de la inspección (opcional)", ph_inspector: "Nombre y apellidos",
+      f_site: "Centro de trabajo (opcional)", ph_site: "Planta de producción",
+      f_inspector: "Responsable (opcional)", ph_inspector: "Nombre y apellidos",
       btn_report: "Descargar informe .docx",
       btn_reporting: "Generando…",
       report_ok: "Informe descargado. Recuerda validarlo presencialmente.",
       report_err: "No se pudo generar el informe.",
-      footer: "H&S Detect · Informe de inspección de apoyo — no sustituye la evaluación legal.",
-      free_some: (n) => `${n} análisis gratis`,
-      free_none: "Sin análisis gratis",
+      footer: "IMAFORT · Herramienta de apoyo para informes de seguridad industrial.",
       menu_language: "Idioma",
       m_bad_format: "Formato no válido. Usa JPG, PNG o WEBP.",
       m_too_big: "La imagen supera los 5 MB.",
       m_conn: "Error de conexión. Revisa tu red e inténtalo de nuevo.",
-      m_fail: "No se pudo completar la inspección.",
+      m_fail: "No se pudo completar el análisis.",
       lbl_loc: "Ubicación", lbl_conf: "Confianza IA", lbl_actions: "Acción recomendada",
       verify: "↪ Requiere verificación presencial",
       clas: { critical: "Crítica", important: "Importante", minor: "Menor", conform: "Conforme" },
@@ -389,37 +369,35 @@
     },
     en: {
       htmlLang: "en",
-      tagline: "AI safety inspection",
-      legalHTML: "<strong>Support tool.</strong> This automated visual inspection does not replace the legal risk assessment (Spanish Law 31/1995, RD 39/1997), which must be carried out by qualified personnel. It records visible safety observations.",
-      hero_title: "Inspect your plant's safety in seconds",
-      hero_sub: "Take a photo of the workstation or work area. The AI records visible safety observations, classifies them by severity and prepares an inspection report.",
+      tagline: "AI-powered industrial safety reports",
+      legal: "Support tool for generating safety reports. Does not replace the legal risk assessment (Spanish Law 31/1995, RD 39/1997). On-site validation is the responsibility of the signing technician.",
+      hero_title: "Generate your safety report in seconds",
+      hero_sub: "Take a photo of the workstation or work area with your phone. The AI identifies safety observations, classifies them by severity and generates a Word report ready to sign.",
       dz_title: "Drag an image or click to upload",
       dz_hint: "JPG, PNG or WEBP · max 5 MB",
-      btn_analyze: "Inspect image",
-      btn_analyzing: "Inspecting…",
+      btn_analyze: "Analyse image",
+      btn_analyzing: "Analysing…",
       btn_change: "Change image",
-      scan_text: "Inspecting…",
+      scan_text: "Analysing…",
       obs_label: "OBSERVATIONS",
       obs_section: "Safety observations",
-      summary_done: "Inspection completed.",
+      summary_done: "Analysis completed.",
       no_obs: "No visible observations recorded. This does not guarantee the absence of risks: always check on-site.",
-      limits_title: "⚠️ What this inspection CANNOT see",
-      report_title: "📄 Generate inspection report (Word)",
+      limits_title: "⚠️ What this analysis CANNOT see",
+      report_title: "📄 Generate Word report",
       f_company: "Company (optional)", ph_company: "My Company Ltd.",
-      f_site: "Work site (optional)", ph_site: "Igualada plant",
-      f_inspector: "Inspection lead (optional)", ph_inspector: "Full name",
+      f_site: "Work site (optional)", ph_site: "Production plant",
+      f_inspector: "Responsible (optional)", ph_inspector: "Full name",
       btn_report: "Download .docx report",
       btn_reporting: "Generating…",
       report_ok: "Report downloaded. Remember to validate it on-site.",
       report_err: "The report could not be generated.",
-      footer: "H&S Detect · Supporting inspection report — does not replace the legal assessment.",
-      free_some: (n) => `${n} free analyses`,
-      free_none: "No free analyses left",
+      footer: "IMAFORT · Support tool for industrial safety reports.",
       menu_language: "Language",
       m_bad_format: "Invalid format. Use JPG, PNG or WEBP.",
       m_too_big: "The image exceeds 5 MB.",
       m_conn: "Connection error. Check your network and try again.",
-      m_fail: "The inspection could not be completed.",
+      m_fail: "The analysis could not be completed.",
       lbl_loc: "Location", lbl_conf: "AI confidence", lbl_actions: "Recommended action",
       verify: "↪ Requires on-site verification",
       clas: { critical: "Critical", important: "Important", minor: "Minor", conform: "Compliant" },
@@ -427,37 +405,35 @@
     },
     ca: {
       htmlLang: "ca",
-      tagline: "Inspecció de seguretat amb IA",
-      legalHTML: "<strong>Eina de suport.</strong> Aquesta inspecció visual automàtica no substitueix l'avaluació de riscos legal (Llei 31/1995, RD 39/1997), que ha de fer personal qualificat. Registra observacions de seguretat visibles.",
-      hero_title: "Inspecciona la seguretat de la teva planta en segons",
-      hero_sub: "Fes una foto del lloc o àrea de treball. La IA registra observacions de seguretat visibles, les classifica per severitat i prepara un informe d'inspecció.",
+      tagline: "Informes de seguretat industrial amb IA",
+      legal: "Eina de suport per a la realització d'informes de seguretat. No substitueix l'avaluació de riscos legal (Llei 31/1995, RD 39/1997). La validació presencial és responsabilitat del tècnic signant.",
+      hero_title: "Genera el teu informe de seguretat en segons",
+      hero_sub: "Fotografía el lloc o àrea de treball amb el teu mòbil. La IA identifica observacions de seguretat, les classifica per severitat i genera un informe Word llest per signar.",
       dz_title: "Arrossega una imatge o fes clic per pujar",
       dz_hint: "JPG, PNG o WEBP · màx. 5 MB",
-      btn_analyze: "Inspecciona la imatge",
-      btn_analyzing: "Inspeccionant…",
+      btn_analyze: "Analitza la imatge",
+      btn_analyzing: "Analitzant…",
       btn_change: "Canvia la imatge",
-      scan_text: "Inspeccionant…",
+      scan_text: "Analitzant…",
       obs_label: "OBSERVACIONS",
       obs_section: "Observacions de seguretat",
-      summary_done: "Inspecció completada.",
+      summary_done: "Anàlisi completada.",
       no_obs: "No s'han registrat observacions visibles. Això no garanteix l'absència de riscos: revisa sempre presencialment.",
-      limits_title: "⚠️ Què NO pot veure aquesta inspecció",
-      report_title: "📄 Genera informe d'inspecció (Word)",
+      limits_title: "⚠️ Què NO pot veure aquesta anàlisi",
+      report_title: "📄 Genera informe Word",
       f_company: "Empresa (opcional)", ph_company: "La meva Empresa SL",
-      f_site: "Centre de treball (opcional)", ph_site: "Planta d'Igualada",
-      f_inspector: "Responsable de la inspecció (opcional)", ph_inspector: "Nom i cognoms",
+      f_site: "Centre de treball (opcional)", ph_site: "Planta de producció",
+      f_inspector: "Responsable (opcional)", ph_inspector: "Nom i cognoms",
       btn_report: "Descarrega informe .docx",
       btn_reporting: "Generant…",
       report_ok: "Informe descarregat. Recorda validar-lo presencialment.",
       report_err: "No s'ha pogut generar l'informe.",
-      footer: "H&S Detect · Informe d'inspecció de suport — no substitueix l'avaluació legal.",
-      free_some: (n) => `${n} anàlisis gratis`,
-      free_none: "Sense anàlisis gratis",
+      footer: "IMAFORT · Eina de suport per a informes de seguretat industrial.",
       menu_language: "Idioma",
       m_bad_format: "Format no vàlid. Fes servir JPG, PNG o WEBP.",
       m_too_big: "La imatge supera els 5 MB.",
       m_conn: "Error de connexió. Revisa la xarxa i torna-ho a provar.",
-      m_fail: "No s'ha pogut completar la inspecció.",
+      m_fail: "No s'ha pogut completar l'anàlisi.",
       lbl_loc: "Ubicació", lbl_conf: "Confiança IA", lbl_actions: "Acció recomanada",
       verify: "↪ Requereix verificació presencial",
       clas: { critical: "Crítica", important: "Important", minor: "Menor", conform: "Conforme" },
@@ -466,7 +442,7 @@
   };
 
   const SUPPORTED = ["es", "en", "ca"];
-  const LS_KEY = "hs_lang";
+  const LS_KEY = "imafort_lang";
 
   function detectLang() {
     const saved = localStorage.getItem(LS_KEY);
@@ -476,7 +452,6 @@
   }
 
   let lang = detectLang();
-  let lastFreeRemaining = null;
 
   const $ = (id) => document.getElementById(id);
 
@@ -484,13 +459,10 @@
     const t = I18N[lang];
     document.documentElement.lang = t.htmlLang;
 
-    // textos con data-i18n
     document.querySelectorAll("[data-i18n]").forEach((el) => {
       const key = el.getAttribute("data-i18n");
-      if (key === "legal") { el.innerHTML = t.legalHTML; return; }
       if (t[key] !== undefined) el.textContent = t[key];
     });
-    // placeholders
     document.querySelectorAll("[data-i18n-ph]").forEach((el) => {
       const key = el.getAttribute("data-i18n-ph");
       if (t[key] !== undefined) el.placeholder = t[key];
@@ -498,15 +470,9 @@
 
     $("scanText").textContent = t.scan_text;
 
-    // marcar opción activa en el menú
     document.querySelectorAll(".lang-opt").forEach((b) =>
       b.classList.toggle("active", b.dataset.lang === lang));
 
-    // refrescar píldora freemium
-    if (lastFreeRemaining !== null) updateFreePill(lastFreeRemaining);
-    else $("freePill").textContent = t.free_some(3);
-
-    // re-render de resultados si los hay
     if (lastAnalysis) renderResults(lastAnalysis);
   }
 
@@ -579,12 +545,10 @@
       const json = await res.json();
       if (!res.ok) {
         setScanning(false);
-        if (res.status === 402) updateFreePill(0);
         return showToast(json.message || t.m_fail, true);
       }
       lastAnalysis = json.data;
       renderResults(json.data);
-      if (typeof json.free_remaining === "number") updateFreePill(json.free_remaining);
     } catch {
       showToast(t.m_conn, true);
     } finally {
@@ -657,7 +621,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = ({es:"Informe_inspeccion_HS_Detect.docx", en:"HS_Detect_inspection_report.docx", ca:"Informe_inspeccio_HS_Detect.docx"})[lang];
+      a.download = ({es:"Informe_seguridad_IMAFORT.docx", en:"IMAFORT_safety_report.docx", ca:"Informe_seguretat_IMAFORT.docx"})[lang];
       a.click();
       URL.revokeObjectURL(url);
       showToast(t.report_ok);
@@ -668,11 +632,6 @@
     }
   });
 
-  function updateFreePill(remaining) {
-    lastFreeRemaining = remaining;
-    const t = I18N[lang];
-    $("freePill").textContent = remaining > 0 ? t.free_some(remaining) : t.free_none;
-  }
   function showToast(msg, isError = false) {
     toast.textContent = msg; toast.className = "toast show" + (isError ? " err" : "");
     setTimeout(() => toast.classList.remove("show"), 3800);
@@ -682,7 +641,6 @@
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
 
-  // arranque
   applyLang();
 })();
 </script>
