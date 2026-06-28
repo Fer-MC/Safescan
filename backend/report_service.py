@@ -31,7 +31,6 @@ COLOR_CLASIF = {
     "conform":   "D4EFDF",
 }
 
-# Ancho columna etiqueta — la columna valor ocupa el resto
 COL1_CM = 4.5
 
 
@@ -60,12 +59,11 @@ def generar_informe(
 
     doc = Document()
 
-    # Márgenes
     for section in doc.sections:
         section.left_margin = Cm(2.5)
         section.right_margin = Cm(2.5)
 
-    col2_cm = 16.0 - COL1_CM  # 11.5 cm
+    col2_cm = 16.0 - COL1_CM
 
     # --- Cabecera ---
     titulo = doc.add_paragraph()
@@ -139,19 +137,17 @@ def generar_informe(
         run.font.size = Pt(8)
         run.italic = True
 
-    # --- Validación / firma ---
-    _heading(doc, T["valid_heading"])
-    doc.add_paragraph(T["valid_text"])
-    firma = doc.add_paragraph()
-    firma.add_run("\n\n" + T["sign_line"])
-
-    # --- Aviso legal al final (sin heading, discreto) ---
+    # --- Aviso legal + firma (sin bloque Validación separado) ---
     p_legal = doc.add_paragraph()
-    p_legal.paragraph_format.space_before = Pt(16)
+    p_legal.paragraph_format.space_before = Pt(20)
     run_legal = p_legal.add_run(T["legal"])
     run_legal.font.size = Pt(7.5)
     run_legal.italic = True
     run_legal.font.color.rgb = GRIS
+
+    firma = doc.add_paragraph()
+    firma.paragraph_format.space_before = Pt(14)
+    firma.add_run(T["sign_line"])
 
     buffer = BytesIO()
     doc.save(buffer)
