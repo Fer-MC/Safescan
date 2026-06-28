@@ -18,16 +18,17 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 from i18n import CLASIF_LABEL, CONF_LABEL, normalize_lang, report_strings
 
-# Paleta de marca
-AZUL = RGBColor(0x1A, 0x2F, 0x4E)
-VERDE = RGBColor(0x2E, 0xCC, 0x71)
+# Paleta IMAFORT
+AZUL    = RGBColor(0x1B, 0x2F, 0x4E)   # Navy #1B2F4E
+NARANJA = RGBColor(0xE8, 0x61, 0x1A)   # Naranja seguridad #E8611A
+GRIS    = RGBColor(0x4A, 0x55, 0x68)   # Gris acero #4A5568
 
-# Color de fondo de celda por clasificación (clave neutra -> hex)
+# Color de fondo de celda por clasificación — paleta IMAFORT
 COLOR_CLASIF = {
-    "critical": "F5B7B1",
-    "important": "FAE5D3",
-    "minor": "FCF3CF",
-    "conform": "D4EFDF",
+    "critical":  "F5B7B1",   # fondo suave rojo  → borde #A32D2D
+    "important": "FAE5D3",   # fondo suave naranja → borde #E8611A
+    "minor":     "FCF3CF",   # fondo suave amarillo
+    "conform":   "D4EFDF",   # fondo suave verde  → borde #3B6D11
 }
 
 
@@ -60,7 +61,7 @@ def generar_informe(
     # --- Cabecera ---
     titulo = doc.add_paragraph()
     titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = titulo.add_run("H&S Detect")
+    r = titulo.add_run("IMAFORT")
     r.bold = True
     r.font.size = Pt(26)
     r.font.color.rgb = AZUL
@@ -69,7 +70,7 @@ def generar_informe(
     sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
     rs = sub.add_run(T["app_subtitle"])
     rs.font.size = Pt(12)
-    rs.font.color.rgb = VERDE
+    rs.font.color.rgb = NARANJA
 
     meta = doc.add_paragraph()
     meta.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -82,11 +83,11 @@ def generar_informe(
         parts.append(f"{T['inspector']}: {responsable}")
     meta.add_run("  ·  ".join(parts)).font.size = Pt(9)
 
-    # --- Aviso legal (arriba, destacado) ---
-    _heading(doc, T["legal_heading"], size=11)
+    # --- Aviso legal (discreto, al final del encabezado) ---
+    _heading(doc, T["legal_heading"], size=11, color=GRIS)
     d = doc.add_paragraph()
     dr = d.add_run(T["legal"])
-    dr.font.size = Pt(8.5)
+    dr.font.size = Pt(8)
     dr.italic = True
 
     # --- Resumen ---
@@ -126,7 +127,6 @@ def generar_informe(
                 fila(T["f_actions"], "\n".join(f"• {a}" for a in obs.get("acciones", [])))
             fila(T["f_norm"], ", ".join(obs.get("normativa", [])) or "—")
             fila(T["f_conf"], conflabel.get(obs.get("confianza", "medium")))
-            fila(T["f_verify"], T["yes"] if obs.get("requiere_verificacion") else T["no"])
 
     # --- Limitaciones ---
     _heading(doc, T["limits_heading"])
