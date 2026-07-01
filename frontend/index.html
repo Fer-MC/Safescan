@@ -503,21 +503,24 @@
   // ---------------------------------------------------------------------
   // Lógica principal
   // ---------------------------------------------------------------------
-  const dropzone = $("dropzone"), fileInput = $("fileInput");
+  const dropzone = $("dropzone");
+  const fileInputCamera = $("fileInputCamera"), fileInputGallery = $("fileInputGallery");
+  const btnCamera = $("btnCamera"), btnGallery = $("btnGallery");
   const previewWrap = $("previewWrap"), preview = $("preview"), previewImg = $("previewImg");
   const analyzeBtn = $("analyzeBtn"), resetBtn = $("resetBtn"), reportBtn = $("reportBtn");
   const results = $("results"), toast = $("toast");
   let currentFile = null, lastAnalysis = null;
 
-  dropzone.addEventListener("click", () => fileInput.click());
-  dropzone.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") fileInput.click(); });
+  btnCamera.addEventListener("click", () => fileInputCamera.click());
+  btnGallery.addEventListener("click", () => fileInputGallery.click());
+  fileInputCamera.addEventListener("change", (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
+  fileInputGallery.addEventListener("change", (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
+
   dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("drag"); });
   dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag"));
   dropzone.addEventListener("drop", (e) => {
     e.preventDefault(); dropzone.classList.remove("drag");
-    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-  });
-  fileInput.addEventListener("change", (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
 
   function handleFile(file) {
     const t = I18N[lang];
