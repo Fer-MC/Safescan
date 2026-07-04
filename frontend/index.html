@@ -543,8 +543,9 @@
     previewWrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  resetBtn.addEventListener("click", () => {
-    currentFile = null; lastAnalysis = null; fileInput.value = "";
+resetBtn.addEventListener("click", () => {
+    currentFile = null; lastAnalysis = null;
+    fileInputCamera.value = ""; fileInputGallery.value = "";
     previewWrap.classList.remove("show"); results.classList.remove("show");
     dropzone.style.display = "block";
   });
