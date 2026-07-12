@@ -1,16 +1,16 @@
 """
-main.py — Aplicación FastAPI de IMAFORT.
+main.py — Aplicación FastAPI de VETLLA.
 
 INICIO:
   1. Carga .env (ANTHROPIC_API_KEY)
-  2. Arranca servidor FastAPI en http://0.0.0.0:8080
+  2. Arranca servidor FastAPI
   3. Sirve frontend + API
 
 ENDPOINTS:
   GET  /              -> index.html (frontend)
   GET  /api/health    -> estado del servicio
   POST /api/analyze   -> analiza imagen con Claude Vision (param: lang)
-  POST /api/report    -> genera informe Word (param: lang)
+  POST /api/report    -> genera informe Word (param: lang, incluye la foto)
 
 CÓMO PROBAR LOCALMENTE:
   pip install -r requirements.txt
@@ -36,7 +36,7 @@ except ImportError:
 import json
 import logging
 
-from fastapi import FastAPI, File, Form, Request, UploadFile, Response
+from fastapi import FastAPI, File, Form, Request, UploadFile
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 
 from config import settings, validate_runtime
@@ -45,7 +45,7 @@ from report_service import generar_informe
 from i18n import normalize_lang
 
 logging.basicConfig(level=logging.INFO if not settings.debug else logging.DEBUG)
-logger = logging.getLogger("imafort")
+logger = logging.getLogger("vetlla")
 
 app = FastAPI(title=settings.app_name)
 
@@ -118,11 +118,18 @@ async def report(
     centro: str = Form(""),
     responsable: str = Form(""),
     lang: str = Form("es"),
+    image: UploadFile | None = File(None),
 ):
     try:
         analisis = json.loads(payload)
     except json.JSONDecodeError:
         return JSONResponse(status_code=400, content={"error": "bad_payload", "message": "Datos de análisis inválidos."})
+
+    image_bytes = None
+    if image is not None:
+        image_bytes = await image.read()
+        if image_bytes and len(image_bytes) > settings.max_image_bytes:
+            image_bytes = None  # ignora imágenes anómalas; el informe se genera igual
 
     lang = normalize_lang(lang)
     buffer = generar_informe(
@@ -131,6 +138,7 @@ async def report(
         centro=centro.strip()[:120],
         responsable=responsable.strip()[:120],
         lang=lang,
+        image_bytes=image_bytes,
     )
     from i18n import report_strings
     filename = report_strings(lang)["filename"]
