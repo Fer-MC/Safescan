@@ -67,8 +67,6 @@
     border-radius: 12px; box-shadow: var(--shadow);
     min-width: 160px; overflow: hidden; z-index: 40;
   }
-  .dz-buttons { display: flex; gap: .6rem; justify-content: center; margin-top: 1rem; }
-  .dz-buttons .btn { flex: 0 1 auto; padding: .65rem 1.2rem; }
   .menu.open { display: block; }
   .menu-label { font-size: .72rem; font-weight: 600; color: var(--muted);
     padding: .6rem 1rem .3rem; text-transform: uppercase; letter-spacing: .05em; }
@@ -263,7 +261,7 @@
     <p data-i18n="hero_sub"></p>
   </section>
 
-  <div class="dropzone" id="dropzone" role="group" aria-label="Subir imagen">
+  <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Subir imagen">
     <div class="dz-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
@@ -271,12 +269,7 @@
     </div>
     <h3 data-i18n="dz_title"></h3>
     <div class="hint" data-i18n="dz_hint"></div>
-    <div class="dz-buttons">
-      <button type="button" class="btn btn-primary" id="btnCamera" data-i18n="btn_camera"></button>
-      <button type="button" class="btn btn-ghost" id="btnGallery" data-i18n="btn_gallery"></button>
-    </div>
-    <input type="file" id="fileInputCamera" accept="image/*" capture="environment" style="display:none">
-    <input type="file" id="fileInputGallery" accept="image/*" style="display:none">
+    <input type="file" id="fileInput" accept="image/*" style="display:none">
   </div>
   
   <div class="preview-wrap" id="previewWrap">
@@ -511,18 +504,15 @@
   // ---------------------------------------------------------------------
   // Lógica principal
   // ---------------------------------------------------------------------
-  const dropzone = $("dropzone");
-  const fileInputCamera = $("fileInputCamera"), fileInputGallery = $("fileInputGallery");
-  const btnCamera = $("btnCamera"), btnGallery = $("btnGallery");
+  const dropzone = $("dropzone"), fileInput = $("fileInput");
   const previewWrap = $("previewWrap"), preview = $("preview"), previewImg = $("previewImg");
   const analyzeBtn = $("analyzeBtn"), resetBtn = $("resetBtn"), reportBtn = $("reportBtn");
   const results = $("results"), toast = $("toast");
   let currentFile = null, lastAnalysis = null;
 
-  btnCamera.addEventListener("click", () => fileInputCamera.click());
-  btnGallery.addEventListener("click", () => fileInputGallery.click());
-  fileInputCamera.addEventListener("change", (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
-  fileInputGallery.addEventListener("change", (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
+  dropzone.addEventListener("click", () => fileInput.click());
+  dropzone.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
+  fileInput.addEventListener("change", (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
 
   dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("drag"); });
   dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag"));
@@ -545,7 +535,7 @@
 
 resetBtn.addEventListener("click", () => {
     currentFile = null; lastAnalysis = null;
-    fileInputCamera.value = ""; fileInputGallery.value = "";
+    fileInput.value = "";
     previewWrap.classList.remove("show"); results.classList.remove("show");
     dropzone.style.display = "block";
   });
