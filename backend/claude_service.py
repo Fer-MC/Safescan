@@ -32,7 +32,7 @@ from i18n import (
     user_prompt,
 )
 
-logger = logging.getLogger("hs_detect.claude")
+logger = logging.getLogger("vetlla.claude")
 
 
 class AnalysisError(Exception):
