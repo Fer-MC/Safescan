@@ -2,15 +2,15 @@
 report_service.py — Generación del informe de inspección en Word (python-docx).
 
 Produce un INFORME DE INSPECCIÓN VISUAL DE APOYO, multiidioma (es/en/ca).
-La EMPRESA USUARIA es la protagonista del documento; VETLLA aparece solo como
-sello discreto ("Generado con VETLLA"). El documento se devuelve en memoria
-(BytesIO) para no escribir en disco en el servidor.
+La EMPRESA USUARIA es la protagonista del documento; VETLLA aparece en el header
+de todas las páginas como "Generado con VETLLA".
 
 Características de formato:
   - Tipografía Aptos (cuerpo) / Aptos Display (títulos), declarada en el documento.
   - Foto analizada incrustada, centrada y COMPRIMIDA localmente (sin llamadas API).
   - Tablas: centrado vertical de celdas, spacing 6pt; solo la celda de
-    "Clasificación" lleva sombreado pastel (ShadingType CLEAR, nunca SOLID).
+    "Clasificación" lleva sombreado pastel (ShadingType CLEAR).
+  - Saltos de página estratégicos para evitar cortes de contenido.
 """
 
 from datetime import datetime
@@ -48,27 +48,38 @@ COLOR_CLASIF = {
     "conform":   "DCEBD1",
 }
 
-# Ancho de columna etiqueta; la de valor ocupa el resto
+# Ancho de columna etiqueta
 COL1_CM = 4.5
-PAGE_CONTENT_CM = 16.0  # A4 21cm - 2.5 - 2.5
+PAGE_CONTENT_CM = 16.0
 
 # Compresión de imagen
-IMG_MAX_PX = 1400      # lado mayor máximo en px
-IMG_QUALITY = 72       # calidad JPEG
-IMG_DOC_WIDTH_CM = 12.0  # ancho al insertar en el documento
+IMG_MAX_PX = 1400
+IMG_QUALITY = 72
+IMG_DOC_WIDTH_CM = 12.0
 
 
 def _set_document_fonts(doc):
-    """Fija Aptos como fuente por defecto del documento (Normal + headings)."""
+    """Fija Aptos como fuente por defecto del documento."""
     normal = doc.styles["Normal"]
     normal.font.name = FONT_BODY
     normal.font.size = Pt(10.5)
-    # Asegurar que Word aplique la fuente también en Asia/complejo
     rpr = normal.element.get_or_add_rPr()
     rfonts = rpr.get_or_add_rFonts()
     rfonts.set(qn("w:ascii"), FONT_BODY)
     rfonts.set(qn("w:hAnsi"), FONT_BODY)
     rfonts.set(qn("w:cs"), FONT_BODY)
+
+
+def _add_header(doc, text):
+    """Añade texto al header del documento (todas las páginas)."""
+    for section in doc.sections:
+        header = section.header
+        header_para = header.paragraphs[0] if header.paragraphs else header.add_paragraph()
+        header_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        header_run = header_para.add_run(text)
+        header_run.font.size = Pt(8)
+        header_run.font.color.rgb = GRIS
+        header_run.font.name = FONT_BODY
 
 
 def _title(doc, text, size=16, color=AZUL, align=WD_ALIGN_PARAGRAPH.LEFT,
@@ -84,13 +95,18 @@ def _title(doc, text, size=16, color=AZUL, align=WD_ALIGN_PARAGRAPH.LEFT,
     return p
 
 
+def _page_break(doc):
+    """Añade un salto de página."""
+    doc.add_page_break()
+
+
 def _compress_image(image_bytes: bytes) -> BytesIO | None:
-    """Comprime la imagen localmente (sin API). Devuelve un BytesIO JPEG o None."""
+    """Comprime la imagen localmente (sin API)."""
     if not _PIL_OK or not image_bytes:
         return None
     try:
         im = Image.open(BytesIO(image_bytes))
-        im = ImageOps.exif_transpose(im)  # respeta orientación EXIF (fotos de móvil)
+        im = ImageOps.exif_transpose(im)
         if im.mode not in ("RGB", "L"):
             im = im.convert("RGB")
         im.thumbnail((IMG_MAX_PX, IMG_MAX_PX), Image.LANCZOS)
@@ -119,21 +135,16 @@ def generar_informe(
     doc = Document()
     _set_document_fonts(doc)
 
+    # --- Header en todas las páginas ---
+    _add_header(doc, T["brand_seal"])
+
     for section in doc.sections:
         section.left_margin = Cm(2.5)
         section.right_margin = Cm(2.5)
 
     col2_cm = PAGE_CONTENT_CM - COL1_CM
 
-    # --- Sello discreto VETLLA (cabecera secundaria, arriba a la derecha) ---
-    seal = doc.add_paragraph()
-    seal.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    seal_run = seal.add_run(T["brand_seal"])
-    seal_run.font.size = Pt(8)
-    seal_run.font.color.rgb = GRIS
-    seal_run.font.name = FONT_BODY
-
-    # --- Título del informe (protagonista: la empresa) ---
+    # --- Título del informe (empresa como protagonista) ---
     titulo = doc.add_paragraph()
     titulo.alignment = WD_ALIGN_PARAGRAPH.CENTER
     tr = titulo.add_run(empresa.strip() or T["app_subtitle"])
@@ -142,25 +153,23 @@ def generar_informe(
     tr.font.color.rgb = AZUL
     tr.font.name = FONT_TITLE
 
-    # Subtítulo: tipo de documento
+    # --- Subtítulo en MAYÚSCULAS ---
     sub = doc.add_paragraph()
     sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    sr = sub.add_run(T["app_subtitle"])
+    sr = sub.add_run(T["app_subtitle"].upper())
     sr.font.size = Pt(11)
     sr.font.color.rgb = GRIS
     sr.font.name = FONT_BODY
 
-    # --- Bloque de datos iniciales (centrado) ---
+    # --- Bloque de datos iniciales (sin Empresa, con barras |) ---
     meta = doc.add_paragraph()
     meta.alignment = WD_ALIGN_PARAGRAPH.CENTER
     lineas = [f"{T['date']}: {datetime.now().strftime('%d/%m/%Y %H:%M')}"]
-    if empresa:
-        lineas.append(f"{T['company']}: {empresa}")
     if centro:
         lineas.append(f"{T['site']}: {centro}")
     if responsable:
         lineas.append(f"{T['inspector']}: {responsable}")
-    mr = meta.add_run("   ·   ".join(lineas))
+    mr = meta.add_run(" | ".join(lineas))
     mr.font.size = Pt(9)
     mr.font.name = FONT_BODY
 
@@ -181,8 +190,11 @@ def generar_informe(
         cr.font.color.rgb = GRIS
         cr.font.name = FONT_BODY
 
+    # --- SALTO DE PÁGINA antes del resumen ---
+    _page_break(doc)
+
     # --- Resumen ---
-    _title(doc, T["summary_heading"], size=14, space_before=14)
+    _title(doc, T["summary_heading"], size=14, space_before=10)
     doc.add_paragraph(analisis.get("resumen") or T["no_summary"])
     n = analisis.get("num_observaciones", len(analisis.get("observaciones", [])))
     cnt = doc.add_paragraph()
@@ -208,17 +220,14 @@ def generar_informe(
                 cells = tabla.add_row().cells
                 cells[0].width = Cm(COL1_CM)
                 cells[1].width = Cm(col2_cm)
-                # Centrado VERTICAL en ambas celdas (horizontal queda a la izquierda)
                 for c in cells:
                     c.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-                # Etiqueta
                 p0 = cells[0].paragraphs[0]
                 p0.paragraph_format.space_before = Pt(6)
                 r0 = p0.add_run(k)
                 r0.bold = True
                 r0.font.size = Pt(9)
                 r0.font.name = FONT_BODY
-                # Valor
                 p1 = cells[1].paragraphs[0]
                 p1.paragraph_format.space_before = Pt(6)
                 r1 = p1.add_run(str(v))
@@ -231,12 +240,15 @@ def generar_informe(
             fila(T["f_desc"], obs.get("descripcion", ""))
             if obs.get("ubicacion"):
                 fila(T["f_loc"], obs.get("ubicacion", ""))
-            # SOLO esta celda lleva sombreado
             fila(T["f_class"], clabel.get(clave, clave), shade=COLOR_CLASIF.get(clave))
             if obs.get("acciones"):
                 fila(T["f_actions"], "\n".join(f"• {a}" for a in obs.get("acciones", [])))
             fila(T["f_norm"], ", ".join(obs.get("normativa", [])) or "—")
             fila(T["f_conf"], conflabel.get(obs.get("confianza", "medium")))
+
+            # SALTO DE PÁGINA después de cada tabla (evita cortes)
+            if i < len(observaciones):  # no añadir después de la última
+                _page_break(doc)
 
     # --- Limitaciones (pequeñas y en cursiva) ---
     _title(doc, T["limits_heading"], size=12, space_before=12)
@@ -268,7 +280,7 @@ def generar_informe(
 
 
 def _shade_cell(cell, hex_color: str):
-    """Sombreado de celda con ShadingType CLEAR (nunca SOLID: renderiza negro)."""
+    """Sombreado de celda con ShadingType CLEAR."""
     tc_pr = cell._tc.get_or_add_tcPr()
     shd = OxmlElement("w:shd")
     shd.set(qn("w:val"), "clear")
