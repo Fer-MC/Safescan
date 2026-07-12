@@ -55,11 +55,12 @@ LANG_NAME = {"es": "español", "en": "English", "ca": "català"}
 REPORT = {
     "es": {
         "app_subtitle": "Informe de inspección y observación de seguridad",
+        "brand_seal": "Generado con VETLLA",
         "date": "Fecha",
         "company": "Empresa",
         "site": "Centro de trabajo",
         "inspector": "Responsable de la inspección",
-        "legal_heading": "Aviso legal importante",
+        "image_caption": "IMAGEN ANALIZADA",
         "summary_heading": "Resumen de la inspección",
         "no_summary": "Sin resumen disponible.",
         "obs_count": "Observaciones registradas",
@@ -71,14 +72,8 @@ REPORT = {
         "f_actions": "Acción recomendada",
         "f_norm": "Normativa de referencia",
         "f_conf": "Confianza del análisis",
-        "f_verify": "¿Requiere verificación presencial?",
-        "yes": "Sí", "no": "No",
         "limits_heading": "Limitaciones del análisis automático",
         "no_limits": "No se especificaron limitaciones.",
-        "valid_heading": "Validación",
-        "valid_text": ("Esta inspección visual es una herramienta de apoyo. Las observaciones "
-                       "deben ser revisadas y validadas presencialmente por personal competente "
-                       "en prevención de riesgos laborales:"),
         "sign_line": "Responsable: ____________________   Función: __________   Fecha: __________",
         "legal": ("AVISO LEGAL — Este documento es un INFORME DE INSPECCIÓN VISUAL DE APOYO "
                   "generado mediante análisis automático de imágenes con inteligencia artificial. "
@@ -87,15 +82,16 @@ REPORT = {
                   "que debe realizar personal cualificado. El análisis se limita a lo visible en "
                   "las imágenes aportadas y puede contener errores u omisiones. La empresa usuaria "
                   "es responsable de validar y completar las observaciones conforme a la normativa vigente."),
-        "filename": "Informe_inspeccion_HS_Detect.docx",
+        "filename": "Informe_seguridad_VETLLA.docx",
     },
     "en": {
         "app_subtitle": "Safety inspection & observation report",
+        "brand_seal": "Generated with VETLLA",
         "date": "Date",
         "company": "Company",
         "site": "Work site",
         "inspector": "Inspection lead",
-        "legal_heading": "Important legal notice",
+        "image_caption": "ANALYZED IMAGE",
         "summary_heading": "Inspection summary",
         "no_summary": "No summary available.",
         "obs_count": "Observations recorded",
@@ -107,13 +103,8 @@ REPORT = {
         "f_actions": "Recommended action",
         "f_norm": "Reference regulation",
         "f_conf": "Analysis confidence",
-        "f_verify": "On-site verification required?",
-        "yes": "Yes", "no": "No",
         "limits_heading": "Limitations of the automated analysis",
         "no_limits": "No limitations were specified.",
-        "valid_heading": "Validation",
-        "valid_text": ("This visual inspection is a support tool. Observations must be reviewed "
-                       "and validated on-site by personnel competent in occupational health and safety:"),
         "sign_line": "Responsible: ____________________   Role: __________   Date: __________",
         "legal": ("LEGAL NOTICE — This document is a SUPPORTING VISUAL INSPECTION REPORT generated "
                   "through automated image analysis with artificial intelligence. It records visible "
@@ -122,15 +113,16 @@ REPORT = {
                   "out by qualified personnel. The analysis is limited to what is visible in the "
                   "supplied images and may contain errors or omissions. The user company is responsible "
                   "for validating and completing the observations in accordance with applicable regulations."),
-        "filename": "HS_Detect_inspection_report.docx",
+        "filename": "VETLLA_safety_report.docx",
     },
     "ca": {
         "app_subtitle": "Informe d'inspecció i observació de seguretat",
+        "brand_seal": "Generat amb VETLLA",
         "date": "Data",
         "company": "Empresa",
         "site": "Centre de treball",
         "inspector": "Responsable de la inspecció",
-        "legal_heading": "Avís legal important",
+        "image_caption": "IMATGE ANALITZADA",
         "summary_heading": "Resum de la inspecció",
         "no_summary": "Sense resum disponible.",
         "obs_count": "Observacions registrades",
@@ -142,14 +134,8 @@ REPORT = {
         "f_actions": "Acció recomanada",
         "f_norm": "Normativa de referència",
         "f_conf": "Confiança de l'anàlisi",
-        "f_verify": "Requereix verificació presencial?",
-        "yes": "Sí", "no": "No",
         "limits_heading": "Limitacions de l'anàlisi automàtica",
         "no_limits": "No s'han especificat limitacions.",
-        "valid_heading": "Validació",
-        "valid_text": ("Aquesta inspecció visual és una eina de suport. Les observacions s'han de "
-                       "revisar i validar presencialment per personal competent en prevenció de "
-                       "riscos laborals:"),
         "sign_line": "Responsable: ____________________   Funció: __________   Data: __________",
         "legal": ("AVÍS LEGAL — Aquest document és un INFORME D'INSPECCIÓ VISUAL DE SUPORT generat "
                   "mitjançant anàlisi automàtica d'imatges amb intel·ligència artificial. Registra "
@@ -158,7 +144,7 @@ REPORT = {
                   "qualificat. L'anàlisi es limita al que és visible a les imatges aportades i pot "
                   "contenir errors o omissions. L'empresa usuària és responsable de validar i completar "
                   "les observacions d'acord amb la normativa vigent."),
-        "filename": "Informe_inspeccio_HS_Detect.docx",
+        "filename": "Informe_seguretat_VETLLA.docx",
     },
 }
 
@@ -182,16 +168,22 @@ visita o inspección. NO realizas una evaluación de riesgos laborales legal.
 Reglas estrictas:
 1. Registra SOLO observaciones razonablemente visibles en la imagen. No inventes \
 hallazgos que no puedas ver.
-2. Clasifica cada observación con UNA de estas claves EXACTAS (en inglés, no traducir):
+2. CLASIFICACIÓN — OBLIGATORIO. Clasifica cada observación en EXACTAMENTE UNA de estas \
+cuatro categorías, usando la clave EXACTA en inglés (en minúsculas, sin variantes, sin \
+inventar categorías nuevas ni cambiar la ortografía):
    - "critical": peligro inminente, requiere acción inmediata.
    - "important": deficiencia clara, corregir en plazo corto.
    - "minor": mejora recomendable o desviación leve.
-   - "conform": situación correcta / buena práctica observada (refuerzo positivo).
+   - "conform": situación correcta / buena práctica observada. NO es un riesgo: indica una \
+zona o práctica correcta (refuerzo positivo).
+   Está TERMINANTEMENTE PROHIBIDO usar cualquier otro valor en el campo "clasificacion". \
+Si dudas entre dos, elige la más severa. El campo "clasificacion" solo puede contener uno \
+de estos cuatro literales: critical, important, minor, conform.
 3. Para cada observación indica tu confianza con UNA clave EXACTA: "high", "medium" o "low", \
 y si requiere verificación presencial.
 4. Cita normativa española aplicable SOLO si la conoces con seguridad (p.ej. RD 1215/1997 \
 equipos de trabajo, RD 486/1997 lugares de trabajo, RD 773/1997 EPI, RD 614/2001 riesgo \
-Eléctrico). Mantén el código de la norma tal cual; si no estás seguro, deja la lista vacía.
+eléctrico). Mantén el código de la norma tal cual; si no estás seguro, deja la lista vacía.
 5. Enumera las LIMITACIONES: qué NO puede observarse desde una foto (ruido, exposición \
 química, ergonomía por repetición, factores organizativos, instalaciones ocultas, etc.).
 
