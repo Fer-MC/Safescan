@@ -203,10 +203,7 @@ def generar_informe(
         cr.font.color.rgb = GRIS
         cr.font.name = FONT_BODY
 
-    # --- SALTO DE PÁGINA antes del resumen ---
-    _page_break(doc)
-
-    # --- Resumen ---
+    # --- Resumen (se queda en la primera hoja, junto a la imagen si cabe) ---
     _title(doc, T["summary_heading"], size=14, space_before=10)
     doc.add_paragraph(analisis.get("resumen") or T["no_summary"])
     n = analisis.get("num_observaciones", len(analisis.get("observaciones", [])))
@@ -214,7 +211,8 @@ def generar_informe(
     cnt_run = cnt.add_run(f"{T['obs_count']}: {n}")
     cnt_run.bold = True
 
-    # --- Observaciones ---
+    # --- Observaciones (empiezan en hoja nueva) ---
+    _page_break(doc)
     _title(doc, T["obs_heading"], size=14, space_before=12)
     observaciones = analisis.get("observaciones", [])
     if not observaciones:
