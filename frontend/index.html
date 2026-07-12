@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IMAFORT — Informes de seguridad con IA</title>
+<title>VETLLA — Informes de seguridad con IA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -237,7 +237,7 @@
     </svg>
   </div>
   <div>
-    <h1>IMAFORT</h1>
+    <h1>VETLLA</h1>
     <div class="tag" data-i18n="tagline"></div>
   </div>
   <div class="header-right">
@@ -249,7 +249,7 @@
       </button>
       <div class="menu" id="menu" role="menu">
         <div class="menu-label" data-i18n="menu_language">Idioma</div>
-        <button class="lang-opt" data-lang="ca" role="menuitem"><span class="code">CA</span><span>Català</span></button>
+        <button class="lang-opt" data-lang="ca" role="menuitem" style="display:none"><span class="code">CA</span><span>Català</span></button>
         <button class="lang-opt" data-lang="es" role="menuitem"><span class="code">ES</span><span>Español</span></button>
         <button class="lang-opt" data-lang="en" role="menuitem"><span class="code">EN</span><span>English</span></button>
       </div>
@@ -365,7 +365,7 @@
       btn_reporting: "Generando…",
       report_ok: "Informe descargado. Recuerda validarlo presencialmente.",
       report_err: "No se pudo generar el informe.",
-      footer: "IMAFORT · Herramienta de apoyo para informes de seguridad industrial.",
+      footer: "VETLLA · Herramienta de apoyo para informes de seguridad industrial.",
       menu_language: "Idioma",
       m_bad_format: "Formato no válido. Usa JPG, PNG o WEBP.",
       m_too_big: "La imagen supera los 5 MB.",
@@ -403,7 +403,7 @@
       btn_reporting: "Generating…",
       report_ok: "Report downloaded. Remember to validate it on-site.",
       report_err: "The report could not be generated.",
-      footer: "IMAFORT · Support tool for industrial safety reports.",
+      footer: "VETLLA · Support tool for industrial safety reports.",
       menu_language: "Language",
       m_bad_format: "Invalid format. Use JPG, PNG or WEBP.",
       m_too_big: "The image exceeds 5 MB.",
@@ -441,7 +441,7 @@
       btn_reporting: "Generant…",
       report_ok: "Informe descarregat. Recorda validar-lo presencialment.",
       report_err: "No s'ha pogut generar l'informe.",
-      footer: "IMAFORT · Eina de suport per a informes de seguretat industrial.",
+      footer: "VETLLA · Eina de suport per a informes de seguretat industrial.",
       menu_language: "Idioma",
       m_bad_format: "Format no vàlid. Fes servir JPG, PNG o WEBP.",
       m_too_big: "La imatge supera els 5 MB.",
@@ -455,7 +455,7 @@
   };
 
   const SUPPORTED = ["es", "en", "ca"];
-  const LS_KEY = "imafort_lang";
+  const LS_KEY = "vetlla_lang";
 
   function detectLang() {
     const saved = localStorage.getItem(LS_KEY);
@@ -632,13 +632,14 @@ resetBtn.addEventListener("click", () => {
       form.append("centro", $("centro").value);
       form.append("responsable", $("responsable").value);
       form.append("lang", lang);
+      if (currentFile) form.append("image", currentFile);
       const res = await fetch("/api/report", { method: "POST", body: form });
       if (!res.ok) throw new Error();
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = ({es:"Informe_seguridad_IMAFORT.docx", en:"IMAFORT_safety_report.docx", ca:"Informe_seguretat_IMAFORT.docx"})[lang];
+      a.download = ({es:"Informe_seguridad_VETLLA.docx", en:"VETLLA_safety_report.docx", ca:"Informe_seguretat_VETLLA.docx"})[lang];
       a.click();
       URL.revokeObjectURL(url);
       showToast(t.report_ok);
