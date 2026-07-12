@@ -99,6 +99,19 @@ def _page_break(doc):
     """Añade un salto de página."""
     doc.add_page_break()
 
+def _prevent_row_split(row):
+    """Impide que una fila de tabla se divida entre dos páginas."""
+    tr_pr = row._tr.get_or_add_trPr()
+    cant_split = OxmlElement("w:cantSplit")
+    tr_pr.append(cant_split)
+
+
+def _keep_with_next(paragraph):
+    """Mantiene el párrafo pegado al siguiente (no se separan por salto de página)."""
+    p_fmt = paragraph.paragraph_format
+    p_fmt.keep_with_next = True
+
+
 
 def _compress_image(image_bytes: bytes) -> BytesIO | None:
     """Comprime la imagen localmente (sin API)."""
@@ -208,8 +221,9 @@ def generar_informe(
         doc.add_paragraph(T["no_obs"])
     else:
         for i, obs in enumerate(observaciones, 1):
-            _title(doc, f"{i}. {obs.get('categoria', '')}", size=12,
+            titulo_obs = _title(doc, f"{i}. {obs.get('categoria', '')}", size=12,
                    space_before=10, font=FONT_TITLE)
+            _keep_with_next(titulo_obs)
 
             tabla = doc.add_table(rows=0, cols=2)
             tabla.style = "Table Grid"
@@ -217,7 +231,9 @@ def generar_informe(
             clave = obs.get("clasificacion", "important")
 
             def fila(k, v, shade=None):
-                cells = tabla.add_row().cells
+                row = tabla.add_row()
+                _prevent_row_split(row)
+                cells = row.cells
                 cells[0].width = Cm(COL1_CM)
                 cells[1].width = Cm(col2_cm)
                 for c in cells:
@@ -245,10 +261,6 @@ def generar_informe(
                 fila(T["f_actions"], "\n".join(f"• {a}" for a in obs.get("acciones", [])))
             fila(T["f_norm"], ", ".join(obs.get("normativa", [])) or "—")
             fila(T["f_conf"], conflabel.get(obs.get("confianza", "medium")))
-
-            # SALTO DE PÁGINA después de cada tabla (evita cortes)
-            if i < len(observaciones):  # no añadir después de la última
-                _page_break(doc)
 
     # --- Limitaciones (pequeñas y en cursiva) ---
     _title(doc, T["limits_heading"], size=12, space_before=12)
