@@ -1,13 +1,9 @@
 """
 main.py — Aplicación FastAPI de VETLLA.
 
-INICIO:
-  1. Carga .env (ANTHROPIC_API_KEY)
-  2. Arranca servidor FastAPI
-  3. Sirve frontend + API
-
-ENDPOINTS:
-  GET  /              -> index.html (frontend)
+RUTAS:
+  GET  /              -> landing.html (página comercial)
+  GET  /app           -> index.html (la app: foto -> análisis -> informe)
   GET  /api/health    -> estado del servicio
   POST /api/analyze   -> analiza imagen con Claude Vision (param: lang)
   POST /api/report    -> genera informe Word (param: lang, incluye la foto)
@@ -58,9 +54,15 @@ async def _startup():
         logger.warning("CONFIG: %s", problem)
 
 
-# --- Frontend --------------------------------------------------------------
+# --- Landing (página comercial) --------------------------------------------
 @app.get("/")
-async def index():
+async def landing():
+    return FileResponse(FRONTEND_DIR / "landing.html")
+
+
+# --- App (herramienta de análisis) -----------------------------------------
+@app.get("/app")
+async def app_page():
     return FileResponse(FRONTEND_DIR / "index.html")
 
 
@@ -129,7 +131,7 @@ async def report(
     if image is not None:
         image_bytes = await image.read()
         if image_bytes and len(image_bytes) > settings.max_image_bytes:
-            image_bytes = None  # ignora imágenes anómalas; el informe se genera igual
+            image_bytes = None
 
     lang = normalize_lang(lang)
     buffer = generar_informe(
