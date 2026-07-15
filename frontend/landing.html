@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VETLLA — Informes de seguridad industrial con IA</title>
+<meta name="description" content="Sube una foto de tu instalación. VETLLA detecta los riesgos, los clasifica por gravedad y genera un informe Word profesional en menos de 2 minutos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:      #1B2F4E;
+    --navy-700:  #243f6a;
+    --naranja:   #E8611A;
+    --naranja-600: #c9521a;
+    --gris:      #4A5568;
+    --bg:        #F7F8FA;
+    --surface:   #ffffff;
+    --text:      #1A202C;
+    --muted:     #4A5568;
+    --border:    #e3e8ef;
+    /* niveles de riesgo */
+    --r-critica:   #F5B7B1;
+    --r-importante:#F5D6D6;
+    --r-menor:     #FBE0C7;
+    --r-conforme:  #DCEBD1;
+    --radius: 16px;
+    --shadow-sm: 0 2px 8px rgba(27,47,78,.06);
+    --shadow:    0 8px 30px rgba(27,47,78,.10);
+    --maxw: 1080px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 1.25rem; }
+
+  /* ---------- NAV ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(247,248,250,.88); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; gap: 1rem; height: 64px; }
+  .brand { display: flex; align-items: center; gap: .55rem; font-weight: 800;
+    font-size: 1.25rem; letter-spacing: -.02em; color: var(--navy); }
+  .brand .mark { width: 30px; height: 30px; background: var(--naranja);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .brand .mark svg { width: 17px; height: 17px; }
+  .nav-links { display: flex; gap: 1.6rem; margin-left: auto; align-items: center; }
+  .nav-links a { font-size: .9rem; font-weight: 500; color: var(--muted); }
+  .nav-links a:hover { color: var(--navy); }
+  .lang-switch { display: flex; gap: .15rem; align-items: center; font-size: .8rem;
+    font-weight: 600; color: var(--muted); }
+  .lang-switch button { background: none; border: none; cursor: pointer;
+    font: inherit; color: var(--muted); padding: .2rem .4rem; border-radius: 5px; }
+  .lang-switch button.active { color: var(--naranja); background: #fff2ea; }
+  .lang-switch .sep { opacity: .4; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+    font-family: inherit; font-weight: 600; cursor: pointer; border: none;
+    border-radius: 10px; transition: background .18s, transform .1s, box-shadow .18s;
+    font-size: .9rem; padding: .6rem 1.15rem; white-space: nowrap; }
+  .btn-primary { background: var(--naranja); color: #fff; }
+  .btn-primary:hover { background: var(--naranja-600); }
+  .btn-outline { background: transparent; color: var(--navy); border: 1.5px solid var(--navy); }
+  .btn-outline:hover { background: var(--navy); color: #fff; }
+  .btn-lg { padding: .85rem 1.5rem; font-size: 1rem; border-radius: 12px; }
+  .nav-cta { margin-left: .4rem; }
+  .menu-toggle { display: none; background: none; border: none; cursor: pointer;
+    color: var(--navy); width: 40px; height: 40px; margin-left: auto; }
+
+  /* ---------- SECTION BASE ---------- */
+  section { padding: 4.5rem 0; }
+  .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--naranja); margin-bottom: .8rem; }
+  h2.section-title { font-size: clamp(1.5rem, 3.5vw, 2rem); font-weight: 800;
+    letter-spacing: -.02em; color: var(--navy); line-height: 1.2; margin-bottom: 1rem; }
+  .section-lead { font-size: 1.02rem; color: var(--muted); max-width: 640px; }
+
+  /* ---------- HERO ---------- */
+  .hero { padding: 4rem 0 4.5rem; text-align: center; }
+  .hero .eyebrow { color: var(--naranja); }
+  .hero h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem); font-weight: 900; letter-spacing: -.03em;
+    line-height: 1.15; color: var(--text); max-width: 760px; margin: 0 auto 1.1rem;
+  }
+  .hero p.sub { font-size: 1.05rem; color: var(--muted); max-width: 620px;
+    margin: 0 auto 2rem; }
+  .hero-ctas { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+  .hero .reassure { font-size: .82rem; color: var(--muted); font-weight: 500; }
+  .hero .reassure b { color: var(--gris); font-weight: 600; }
+
+  /* ---------- PROBLEMA / comparison ---------- */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+  .compare-col { border-radius: var(--radius); padding: 1.6rem; }
+  .compare-col.without { background: #fff; border: 1px solid var(--border); }
+  .compare-col.with { background: var(--navy); color: #fff; }
+  .compare-col h4 { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase;
+    margin-bottom: 1rem; font-weight: 700; }
+  .compare-col.without h4 { color: var(--gris); }
+  .compare-col.with h4 { color: #9db4d6; }
+  .compare-col li { display: flex; align-items: flex-start; gap: .6rem;
+    list-style: none; padding: .5rem 0; font-size: .92rem; }
+  .compare-col.without li { border-bottom: 1px solid var(--border); }
+  .compare-col.with li { border-bottom: 1px solid rgba(255,255,255,.12); }
+  .compare-col li:last-child { border-bottom: none; }
+  .ic { flex-shrink: 0; width: 18px; height: 18px; margin-top: 1px; }
+  .ic-x { color: #c0392b; }
+  .ic-check { color: #6fcf97; }
+
+  /* ---------- CÓMO FUNCIONA ---------- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 2.5rem; }
+  .step { background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.6rem; box-shadow: var(--shadow-sm); }
+  .step-num { font-size: .8rem; font-weight: 800; color: var(--naranja);
+    letter-spacing: .05em; margin-bottom: .8rem; }
+  .step h3 { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: .5rem; }
+  .step p { font-size: .9rem; color: var(--muted); }
+  .pills { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin-top: 2.2rem; }
+  .pill { font-size: .8rem; font-weight: 600; color: var(--gris);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: .4rem .9rem; }
+
+  /* ---------- QUÉ DETECTA ---------- */
+  .levels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 2.2rem; }
+  .level { border-radius: 14px; padding: 1.1rem 1.3rem; display: flex; gap: .9rem; align-items: flex-start; }
+  .level .dot { width: 14px; height: 14px; border-radius: 50%; margin-top: .35rem; flex-shrink: 0; }
+  .level h4 { font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: .15rem; }
+  .level p { font-size: .88rem; color: var(--gris); }
+  .lvl-critica   { background: var(--r-critica); }
+  .lvl-importante{ background: var(--r-importante); }
+  .lvl-menor     { background: var(--r-menor); }
+  .lvl-conforme  { background: var(--r-conforme); }
+  .lvl-critica   .dot { background: #A32D2D; }
+  .lvl-importante .dot { background: #E8611A; }
+  .lvl-menor     .dot { background: #C77D2A; }
+  .lvl-conforme  .dot { background: #3B6D11; }
+  .findings { margin-top: 2rem; background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem 1.7rem; }
+  .findings h4 { font-size: .95rem; font-weight: 700; color: var(--navy); margin-bottom: .9rem; }
+  .findings li { display: flex; align-items: flex-start; gap: .6rem; list-style: none;
+    padding: .4rem 0; font-size: .92rem; color: var(--gris); }
+  .findings li svg { flex-shrink: 0; width: 17px; height: 17px; color: var(--naranja); margin-top: 2px; }
+  .footnote { font-size: .82rem; color: var(--muted); margin-top: 1.3rem; font-style: italic; }
+
+  /* ---------- PRECIOS ---------- */
+  .pricing-head { text-align: center; }
+  .pricing-head .section-lead { margin: 0 auto; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 2.5rem; align-items: stretch; }
+  .card { background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.8rem 1.5rem; display: flex; flex-direction: column;
+    box-shadow: var(--shadow-sm); position: relative; }
+  .card.featured { border: 2px solid var(--naranja); box-shadow: var(--shadow); }
+  .badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--naranja); color: #fff; font-size: .72rem; font-weight: 700;
+    padding: .3rem .85rem; border-radius: 999px; letter-spacing: .03em; white-space: nowrap; }
+  .card h3 { font-size: 1.15rem; font-weight: 800; color: var(--navy); margin-bottom: .3rem; }
+  .card .claim { font-size: .85rem; color: var(--muted); min-height: 1.2rem; margin-bottom: .8rem; }
+  .price { font-size: 2rem; font-weight: 900; color: var(--text); letter-spacing: -.02em; }
+  .price span { font-size: .95rem; font-weight: 600; color: var(--muted); }
+  .price-note { font-size: .78rem; color: var(--muted); margin-top: .2rem; min-height: 1rem; }
+  .card ul { list-style: none; margin: 1.2rem 0; display: flex; flex-direction: column; gap: .55rem; flex: 1; }
+  .card li { display: flex; align-items: flex-start; gap: .55rem; font-size: .88rem; color: var(--gris); }
+  .card li svg { flex-shrink: 0; width: 16px; height: 16px; margin-top: 2px; }
+  .card li.no { color: #97a0ae; }
+  .card li .yes-ic { color: #3B6D11; }
+  .card li .no-ic { color: #b8422f; }
+  .card .btn { width: 100%; }
+
+  /* ---------- SOCIAL PROOF ---------- */
+  .proof { background: var(--navy); border-radius: var(--radius); padding: 2.5rem; color: #fff; }
+  .quote { border-left: 4px solid var(--naranja); padding-left: 1.4rem; }
+  .quote p { font-size: 1.2rem; font-weight: 500; line-height: 1.5; letter-spacing: -.01em; }
+  .quote cite { display: block; margin-top: 1rem; font-size: .88rem; font-style: normal;
+    color: #9db4d6; }
+  .metrics { display: flex; gap: 2.5rem; margin-top: 2rem; flex-wrap: wrap; }
+  .metric b { display: block; font-size: 1.6rem; font-weight: 900; color: var(--naranja); }
+  .metric span { font-size: .85rem; color: #9db4d6; }
+
+  /* ---------- FAQ ---------- */
+  .faq-list { margin-top: 2rem; border-top: 1px solid var(--border); }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-q { width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+    font: inherit; font-weight: 600; font-size: 1rem; color: var(--navy);
+    padding: 1.15rem 0; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .faq-q svg { flex-shrink: 0; width: 20px; height: 20px; color: var(--naranja); transition: transform .2s; }
+  .faq-item.open .faq-q svg { transform: rotate(45deg); }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+  .faq-a p { padding: 0 0 1.15rem; font-size: .93rem; color: var(--muted); max-width: 640px; }
+
+  /* ---------- CTA FINAL ---------- */
+  .final { text-align: center; }
+  .final h2 { color: var(--navy); }
+  .final .form-row { display: flex; gap: .6rem; max-width: 440px; margin: 1.8rem auto .8rem; flex-wrap: wrap; }
+  .final input { flex: 1; min-width: 200px; font-family: inherit; font-size: .95rem;
+    padding: .85rem 1rem; border: 1.5px solid var(--border); border-radius: 12px; }
+  .final input:focus { outline: 2px solid var(--naranja); border-color: transparent; }
+  .final .alt { font-size: .9rem; color: var(--muted); }
+  .final .alt a { color: var(--naranja); font-weight: 600; }
+
+  /* ---------- FOOTER ---------- */
+  footer { background: var(--navy); color: #cdd8e8; padding: 3rem 0 2rem; }
+  footer .disclaimer { font-size: .85rem; max-width: 640px; line-height: 1.6; color: #9db4d6; }
+  footer .foot-links { display: flex; gap: 1.5rem; margin: 1.5rem 0; flex-wrap: wrap; }
+  footer .foot-links a { font-size: .88rem; color: #cdd8e8; }
+  footer .foot-links a:hover { color: #fff; }
+  footer .copy { font-size: .82rem; color: #7f93b0; border-top: 1px solid rgba(255,255,255,.12);
+    padding-top: 1.5rem; }
+
+  /* ---------- MOBILE ---------- */
+  @media (max-width: 860px) {
+    .nav-links { display: none; }
+    .menu-toggle { display: flex; align-items: center; justify-content: center; }
+    .compare, .steps, .levels, .cards { grid-template-columns: 1fr; }
+    .proof { padding: 1.8rem; }
+    .quote p { font-size: 1.05rem; }
+    section { padding: 3.2rem 0; }
+    .card.featured { order: -1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav>
+  <div class="wrap nav-inner">
+    <a href="/" class="brand">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/>
+        </svg>
+      </span>
+      VETLLA
+    </a>
+    <div class="nav-links">
+      <a href="#como-funciona" data-i18n="nav_how"></a>
+      <a href="#precios" data-i18n="nav_pricing"></a>
+      <a href="/app" data-i18n="nav_login"></a>
+      <div class="lang-switch">
+        <button data-lang="es">ES</button><span class="sep">/</span><button data-lang="en">EN</button>
+      </div>
+      <a href="/app" class="btn btn-primary nav-cta" data-i18n="nav_cta"></a>
+    </div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menú">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow" data-i18n="hero_eyebrow"></div>
+    <h1 data-i18n="hero_h1"></h1>
+    <p class="sub" data-i18n="hero_sub"></p>
+    <div class="hero-ctas">
+      <a href="/app" class="btn btn-primary btn-lg" data-i18n="hero_cta1"></a>
+      <a href="/app" class="btn btn-outline btn-lg" data-i18n="hero_cta2"></a>
+    </div>
+    <p class="reassure" data-i18n="hero_reassure"></p>
+  </div>
+</header>
+
+<!-- ============ PROBLEMA ============ -->
+<section id="problema">
+  <div class="wrap">
+    <div class="eyebrow" data-i18n="prob_eyebrow"></div>
+    <h2 class="section-title" data-i18n="prob_title"></h2>
+    <p class="section-lead" data-i18n="prob_body"></p>
+    <div class="compare">
+      <div class="compare-col without">
+        <h4 data-i18n="prob_without_h"></h4>
+        <ul id="probWithout"></ul>
+      </div>
+      <div class="compare-col with">
+        <h4 data-i18n="prob_with_h"></h4>
+        <ul id="probWith"></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CÓMO FUNCIONA ============ -->
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="eyebrow" data-i18n="how_eyebrow"></div>
+    <h2 class="section-title" data-i18n="how_title"></h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3 data-i18n="how_s1_t"></h3>
+        <p data-i18n="how_s1_d"></p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3 data-i18n="how_s2_t"></h3>
+        <p data-i18n="how_s2_d"></p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3 data-i18n="how_s3_t"></h3>
+        <p data-i18n="how_s3_d"></p>
+      </div>
+    </div>
+    <div class="pills" id="howPills"></div>
+  </div>
+</section>
+
+<!-- ============ QUÉ DETECTA ============ -->
+<section id="detecta">
+  <div class="wrap">
+    <div class="eyebrow" data-i18n="det_eyebrow"></div>
+    <h2 class="section-title" data-i18n="det_title"></h2>
+    <p class="section-lead" data-i18n="det_intro"></p>
+    <div class="levels">
+      <div class="level lvl-critica"><span class="dot"></span><div><h4 data-i18n="det_l1_t"></h4><p data-i18n="det_l1_d"></p></div></div>
+      <div class="level lvl-importante"><span class="dot"></span><div><h4 data-i18n="det_l2_t"></h4><p data-i18n="det_l2_d"></p></div></div>
+      <div class="level lvl-menor"><span class="dot"></span><div><h4 data-i18n="det_l3_t"></h4><p data-i18n="det_l3_d"></p></div></div>
+      <div class="level lvl-conforme"><span class="dot"></span><div><h4 data-i18n="det_l4_t"></h4><p data-i18n="det_l4_d"></p></div></div>
+    </div>
+    <div class="findings">
+      <h4 data-i18n="det_find_h"></h4>
+      <ul id="findingsList"></ul>
+    </div>
+    <p class="footnote" data-i18n="det_footnote"></p>
+  </div>
+</section>
+
+<!-- ============ PRECIOS ============ -->
+<section id="precios">
+  <div class="wrap">
+    <div class="pricing-head">
+      <div class="eyebrow" data-i18n="price_eyebrow"></div>
+      <h2 class="section-title" data-i18n="price_title"></h2>
+      <p class="section-lead" data-i18n="price_sub"></p>
+    </div>
+    <div class="cards">
+      <!-- Easy -->
+      <div class="card">
+        <h3 data-i18n="price_easy_name"></h3>
+        <div class="claim" data-i18n="price_easy_claim"></div>
+        <div class="price" data-i18n="price_easy_price"></div>
+        <div class="price-note" data-i18n="price_easy_note"></div>
+        <ul id="easyFeatures"></ul>
+        <a href="/app" class="btn btn-outline" data-i18n="price_easy_cta"></a>
+      </div>
+      <!-- Comfort -->
+      <div class="card featured">
+        <div class="badge" data-i18n="price_comfort_badge"></div>
+        <h3 data-i18n="price_comfort_name"></h3>
+        <div class="claim" data-i18n="price_comfort_claim"></div>
+        <div class="price" data-i18n="price_comfort_price"></div>
+        <div class="price-note" data-i18n="price_comfort_note"></div>
+        <ul id="comfortFeatures"></ul>
+        <a href="/app" class="btn btn-primary" data-i18n="price_comfort_cta"></a>
+      </div>
+      <!-- Enterprise -->
+      <div class="card">
+        <h3 data-i18n="price_ent_name"></h3>
+        <div class="claim" data-i18n="price_ent_claim"></div>
+        <div class="price" data-i18n="price_ent_price"></div>
+        <div class="price-note" data-i18n="price_ent_note"></div>
+        <ul id="entFeatures"></ul>
+        <a href="/app" class="btn btn-outline" data-i18n="price_ent_cta"></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SOCIAL PROOF ============ -->
+<section id="proof-sec">
+  <div class="wrap">
+    <div class="proof">
+      <div class="quote">
+        <p data-i18n="proof_quote"></p>
+        <cite data-i18n="proof_author"></cite>
+      </div>
+      <div class="metrics">
+        <div class="metric"><b data-i18n="proof_m1_n"></b><span data-i18n="proof_m1_l"></span></div>
+        <div class="metric"><b data-i18n="proof_m2_n"></b><span data-i18n="proof_m2_l"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="eyebrow" data-i18n="faq_eyebrow"></div>
+    <h2 class="section-title" data-i18n="faq_title"></h2>
+    <div class="faq-list" id="faqList"></div>
+  </div>
+</section>
+
+<!-- ============ CTA FINAL ============ -->
+<section id="cta-final">
+  <div class="wrap final">
+    <h2 class="section-title" data-i18n="final_title"></h2>
+    <p class="section-lead" style="margin:0 auto" data-i18n="final_sub"></p>
+    <div class="form-row">
+      <input type="email" id="finalEmail" data-i18n-ph="final_ph">
+      <button class="btn btn-primary btn-lg" id="finalBtn" data-i18n="final_btn"></button>
+    </div>
+    <p class="alt"><span data-i18n="final_alt"></span> <a href="/app" data-i18n="final_alt_link"></a></p>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap">
+    <p class="disclaimer" data-i18n="foot_disclaimer"></p>
+    <div class="foot-links">
+      <a href="#" data-i18n="foot_privacy"></a>
+      <a href="#" data-i18n="foot_legal"></a>
+      <a href="/app" data-i18n="foot_contact"></a>
+    </div>
+    <p class="copy" data-i18n="foot_copy"></p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const I18N = {
+    es: {
+      nav_how: "Cómo funciona", nav_pricing: "Precios", nav_login: "Acceder", nav_cta: "Probar gratis",
+      hero_eyebrow: "Para técnicos y responsables de PRL en industria",
+      hero_h1: "Tu visita de seguridad convertida en informe profesional en menos de 2 minutos.",
+      hero_sub: "Sube una foto de tu instalación. VETLLA detecta los riesgos, los clasifica por nivel de gravedad y genera un informe Word listo para enviar — compatible con RD 39/1997 e ISO 45001. Sin técnico externo. Sin esperas.",
+      hero_cta1: "Analizar mi primera foto — gratis", hero_cta2: "Solicitar una demo",
+      hero_reassure: "Sin registro · Sin tarjeta de crédito · Informe descargable al instante",
+      prob_eyebrow: "El problema",
+      prob_title: "¿Tu SPA entrega un informe en papel, sin fotos y tres semanas tarde?",
+      prob_body: "La mayoría de pequeñas y medianas fábricas cumplen el expediente con una visita anual de seguridad. El informe llega tarde, no tiene evidencia fotográfica, no es comparable con periodos anteriores y no sirve para tomar decisiones reales. Resultado: cubres el papel, pero no tienes vigilancia real de tu instalación.",
+      prob_without_h: "Sin VETLLA", prob_with_h: "Con VETLLA",
+      prob_without: ["Informe en papel sin fotos", "Semanas de espera", "Solo una vez al año", "Sin histórico comparable"],
+      prob_with: ["Informe Word con fotos", "Listo en menos de 2 minutos", "Mensual o cuando lo necesites", "Digital, archivable, comparable"],
+      how_eyebrow: "Cómo funciona", how_title: "Tres pasos. Menos de 2 minutos.",
+      how_s1_t: "Sube una foto de tu instalación", how_s1_d: "Desde el móvil o el ordenador. Cualquier zona de tu fábrica: almacén, línea de producción, zona de carga, vestuarios.",
+      how_s2_t: "La IA analiza los riesgos visibles", how_s2_d: "VETLLA detecta incidencias, las clasifica por nivel de gravedad y propone acciones correctoras concretas.",
+      how_s3_t: "Descarga tu informe Word", how_s3_d: "Profesional, estructurado, con evidencia fotográfica. Listo para enviar.",
+      how_pills: ["Compatible RD 39/1997", "ISO 45001", "Sin instalación", "Mobile-first"],
+      det_eyebrow: "Qué detecta", det_title: "Lo que antes pasaba desapercibido.",
+      det_intro: "VETLLA no solo señala lo que falla — también confirma lo que ya haces bien.",
+      det_l1_t: "Crítica", det_l1_d: "Peligro inminente. Requiere acción inmediata.",
+      det_l2_t: "Importante", det_l2_d: "Riesgo que requiere acción correctora.",
+      det_l3_t: "Menor", det_l3_d: "Incidencia a seguir en próximas visitas.",
+      det_l4_t: "Conforme", det_l4_d: "Buena práctica confirmada — no requiere acción.",
+      det_find_h: "Ejemplos de hallazgos",
+      det_findings: ["Vías de evacuación obstruidas o mal señalizadas", "EPIs ausentes o mal utilizados", "Almacenamiento incorrecto de materiales", "Orden y limpieza deficientes", "Señalización deteriorada o ausente"],
+      det_footnote: "El análisis es orientativo. La validación final es siempre responsabilidad del técnico firmante.",
+      price_eyebrow: "Precios", price_title: "Elige cómo quieres usarlo",
+      price_sub: "Sin permanencia en Easy. Cancela Comfort cuando quieras.",
+      price_easy_name: "Easy", price_easy_claim: "Úsalo cuando lo necesites",
+      price_easy_price: "15€", price_easy_note: "Válido 12 meses desde la compra",
+      price_easy_features: [["yes","5 informes"],["yes","1 cuenta"],["no","Repositorio de informes"],["no","Logo de tu empresa (marca VETLLA visible)"]],
+      price_easy_cta: "Comprar bono",
+      price_comfort_badge: "Recomendado", price_comfort_name: "Comfort", price_comfort_claim: "Para uso recurrente",
+      price_comfort_price: "29€<span>/mes</span>", price_comfort_note: "",
+      price_comfort_features: [["yes","20 informes al mes"],["yes","Hasta 2 cuentas"],["yes","Repositorio de informes"],["yes","Logo de tu empresa"],["yes","Sin marca VETLLA"]],
+      price_comfort_cta: "Empezar con Comfort",
+      price_ent_name: "Enterprise", price_ent_claim: "Para consultorías y grandes empresas",
+      price_ent_price: "Desde 100€<span>/mes</span>", price_ent_note: "",
+      price_ent_features: [["yes","Informes ilimitados"],["yes","Hasta 5 cuentas"],["yes","Hasta 5 empresas gestionadas"],["yes","Repositorio y logo por empresa"],["yes","Soporte prioritario"]],
+      price_ent_cta: "Contactar con nosotros",
+      proof_quote: "\u201cLo probé en mi fábrica antes de lanzarlo. El informe que genera en 2 minutos tiene más estructura que los que recibíamos de nuestro SPA en semanas.\u201d",
+      proof_author: "— Fundador de VETLLA, responsable HSE en fábrica industrial",
+      proof_m1_n: "+200", proof_m1_l: "fotos analizadas en fase beta",
+      proof_m2_n: "< 2 min", proof_m2_l: "de foto a informe descargable",
+      faq_eyebrow: "Preguntas frecuentes", faq_title: "Todo lo que quieres saber antes de probarlo",
+      faq: [
+        ["¿La IA puede equivocarse?", "Sí, como cualquier herramienta de análisis. VETLLA es un asistente, no un sustituto del técnico. Cada informe incluye un aviso claro: la validación final es siempre responsabilidad del firmante."],
+        ["¿Mis fotos están seguras?", "Las fotos se procesan para generar el análisis y no se almacenan en nuestros servidores."],
+        ["¿Esto sustituye a mi SPA?", "No. VETLLA complementa tu servicio de prevención. Te permite hacer seguimiento entre visitas del SPA, con evidencia fotográfica."],
+        ["¿Necesito instalar algo?", "Nada. Funciona desde el navegador, en móvil u ordenador."],
+        ["¿El informe es válido legalmente?", "El informe sigue la estructura del RD 39/1997 e ISO 45001. Su validez legal depende de que sea revisado y firmado por un técnico competente."]
+      ],
+      final_title: "¿Listo para tu primera inspección con IA?",
+      final_sub: "Empieza ahora sin registro. Si quieres acceso completo y actualizaciones del producto, deja tu email.",
+      final_ph: "tu@email.com", final_btn: "Acceder gratis",
+      final_alt: "O accede directamente a la app", final_alt_link: "→",
+      foot_disclaimer: "VETLLA es una herramienta de asistencia. Los informes generados requieren validación por técnico competente. No sustituyen el criterio profesional.",
+      foot_privacy: "Política de privacidad", foot_legal: "Aviso legal", foot_contact: "Contacto",
+      foot_copy: "© 2026 VETLLA · Hecho en España",
+    },
+    en: {
+      nav_how: "How it works", nav_pricing: "Pricing", nav_login: "Log in", nav_cta: "Try for free",
+      hero_eyebrow: "For OSH technicians and safety managers in industry",
+      hero_h1: "Your safety walk turned into a professional report in under 2 minutes.",
+      hero_sub: "Upload a photo of your facility. VETLLA detects the risks, classifies them by severity and generates a Word report ready to send — compatible with Spanish RD 39/1997 and ISO 45001. No external technician. No waiting.",
+      hero_cta1: "Analyse my first photo — free", hero_cta2: "Request a demo",
+      hero_reassure: "No sign-up · No credit card · Report downloadable instantly",
+      prob_eyebrow: "The problem",
+      prob_title: "Does your safety provider deliver a paper report, with no photos, three weeks late?",
+      prob_body: "Most small and medium factories tick the box with a single annual safety visit. The report arrives late, has no photographic evidence, isn't comparable to previous periods and doesn't support real decisions. The result: you cover the paperwork, but you have no real oversight of your facility.",
+      prob_without_h: "Without VETLLA", prob_with_h: "With VETLLA",
+      prob_without: ["Paper report with no photos", "Weeks of waiting", "Only once a year", "No comparable history"],
+      prob_with: ["Word report with photos", "Ready in under 2 minutes", "Monthly or whenever you need it", "Digital, archivable, comparable"],
+      how_eyebrow: "How it works", how_title: "Three steps. Under 2 minutes.",
+      how_s1_t: "Upload a photo of your facility", how_s1_d: "From your phone or computer. Any area of your factory: warehouse, production line, loading bay, changing rooms.",
+      how_s2_t: "The AI analyses the visible risks", how_s2_d: "VETLLA detects issues, classifies them by severity and proposes concrete corrective actions.",
+      how_s3_t: "Download your Word report", how_s3_d: "Professional, structured, with photographic evidence. Ready to send.",
+      how_pills: ["Compatible RD 39/1997", "ISO 45001", "No install", "Mobile-first"],
+      det_eyebrow: "What it detects", det_title: "What used to go unnoticed.",
+      det_intro: "VETLLA doesn't just flag what's wrong — it also confirms what you're already doing right.",
+      det_l1_t: "Critical", det_l1_d: "Imminent danger. Requires immediate action.",
+      det_l2_t: "Important", det_l2_d: "Risk that requires corrective action.",
+      det_l3_t: "Minor", det_l3_d: "Issue to monitor in upcoming visits.",
+      det_l4_t: "Compliant", det_l4_d: "Good practice confirmed — no action needed.",
+      det_find_h: "Examples of findings",
+      det_findings: ["Blocked or poorly signposted evacuation routes", "Missing or misused PPE", "Incorrect material storage", "Poor housekeeping and cleanliness", "Deteriorated or absent signage"],
+      det_footnote: "The analysis is indicative. Final validation is always the responsibility of the signing technician.",
+      price_eyebrow: "Pricing", price_title: "Choose how you want to use it",
+      price_sub: "No commitment on Easy. Cancel Comfort whenever you want.",
+      price_easy_name: "Easy", price_easy_claim: "Use it when you need it",
+      price_easy_price: "€15", price_easy_note: "Valid 12 months from purchase",
+      price_easy_features: [["yes","5 reports"],["yes","1 account"],["no","Report repository"],["no","Your company logo (VETLLA branding visible)"]],
+      price_easy_cta: "Buy credit pack",
+      price_comfort_badge: "Recommended", price_comfort_name: "Comfort", price_comfort_claim: "For recurring use",
+      price_comfort_price: "€29<span>/mo</span>", price_comfort_note: "",
+      price_comfort_features: [["yes","20 reports per month"],["yes","Up to 2 accounts"],["yes","Report repository"],["yes","Your company logo"],["yes","No VETLLA branding"]],
+      price_comfort_cta: "Start with Comfort",
+      price_ent_name: "Enterprise", price_ent_claim: "For consultancies and large companies",
+      price_ent_price: "From €100<span>/mo</span>", price_ent_note: "",
+      price_ent_features: [["yes","Unlimited reports"],["yes","Up to 5 accounts"],["yes","Up to 5 managed companies"],["yes","Repository and logo per company"],["yes","Priority support"]],
+      price_ent_cta: "Contact us",
+      proof_quote: "\u201cI tested it in my own factory before launching. The report it generates in 2 minutes has more structure than the ones we got from our safety provider in weeks.\u201d",
+      proof_author: "— Founder of VETLLA, HSE manager at an industrial factory",
+      proof_m1_n: "+200", proof_m1_l: "photos analysed in beta",
+      proof_m2_n: "< 2 min", proof_m2_l: "from photo to downloadable report",
+      faq_eyebrow: "FAQ", faq_title: "Everything you want to know before trying it",
+      faq: [
+        ["Can the AI make mistakes?", "Yes, like any analysis tool. VETLLA is an assistant, not a replacement for the technician. Every report includes a clear notice: final validation is always the signer's responsibility."],
+        ["Are my photos safe?", "Photos are processed to generate the analysis and are not stored on our servers."],
+        ["Does this replace my safety provider?", "No. VETLLA complements your prevention service. It lets you follow up between provider visits, with photographic evidence."],
+        ["Do I need to install anything?", "Nothing. It works from the browser, on mobile or desktop."],
+        ["Is the report legally valid?", "The report follows the structure of RD 39/1997 and ISO 45001. Its legal validity depends on being reviewed and signed by a competent technician."]
+      ],
+      final_title: "Ready for your first AI inspection?",
+      final_sub: "Start now without signing up. If you want full access and product updates, leave your email.",
+      final_ph: "you@email.com", final_btn: "Access for free",
+      final_alt: "Or go straight to the app", final_alt_link: "→",
+      foot_disclaimer: "VETLLA is an assistance tool. The reports generated require validation by a competent technician. They do not replace professional judgement.",
+      foot_privacy: "Privacy policy", foot_legal: "Legal notice", foot_contact: "Contact",
+      foot_copy: "© 2026 VETLLA · Made in Spain",
+    },
+    ca: {
+      nav_how: "Com funciona", nav_pricing: "Preus", nav_login: "Accedir", nav_cta: "Provar gratis",
+      hero_eyebrow: "Per a tècnics i responsables de PRL a la indústria",
+      hero_h1: "La teva visita de seguretat convertida en informe professional en menys de 2 minuts.",
+      hero_sub: "Puja una foto de la teva instal·lació. VETLLA detecta els riscos, els classifica per nivell de gravetat i genera un informe Word llest per enviar — compatible amb el RD 39/1997 i la ISO 45001. Sense tècnic extern. Sense esperes.",
+      hero_cta1: "Analitzar la meva primera foto — gratis", hero_cta2: "Sol·licitar una demo",
+      hero_reassure: "Sense registre · Sense targeta de crèdit · Informe descarregable a l'instant",
+      prob_eyebrow: "El problema",
+      prob_title: "El teu SPA entrega un informe en paper, sense fotos i tres setmanes tard?",
+      prob_body: "La majoria de petites i mitjanes fàbriques compleixen l'expedient amb una visita anual de seguretat. L'informe arriba tard, no té evidència fotogràfica, no és comparable amb períodes anteriors i no serveix per prendre decisions reals. Resultat: cobreixes el paper, però no tens vigilància real de la teva instal·lació.",
+      prob_without_h: "Sense VETLLA", prob_with_h: "Amb VETLLA",
+      prob_without: ["Informe en paper sense fotos", "Setmanes d'espera", "Només un cop l'any", "Sense històric comparable"],
+      prob_with: ["Informe Word amb fotos", "Llest en menys de 2 minuts", "Mensual o quan ho necessitis", "Digital, arxivable, comparable"],
+      how_eyebrow: "Com funciona", how_title: "Tres passos. Menys de 2 minuts.",
+      how_s1_t: "Puja una foto de la teva instal·lació", how_s1_d: "Des del mòbil o l'ordinador. Qualsevol zona de la teva fàbrica: magatzem, línia de producció, zona de càrrega, vestidors.",
+      how_s2_t: "La IA analitza els riscos visibles", how_s2_d: "VETLLA detecta incidències, les classifica per nivell de gravetat i proposa accions correctores concretes.",
+      how_s3_t: "Descarrega el teu informe Word", how_s3_d: "Professional, estructurat, amb evidència fotogràfica. Llest per enviar.",
+      how_pills: ["Compatible RD 39/1997", "ISO 45001", "Sense instal·lació", "Mobile-first"],
+      det_eyebrow: "Què detecta", det_title: "El que abans passava desapercebut.",
+      det_intro: "VETLLA no només assenyala el que falla — també confirma el que ja fas bé.",
+      det_l1_t: "Crítica", det_l1_d: "Perill imminent. Requereix acció immediata.",
+      det_l2_t: "Important", det_l2_d: "Risc que requereix acció correctora.",
+      det_l3_t: "Menor", det_l3_d: "Incidència a seguir en properes visites.",
+      det_l4_t: "Conforme", det_l4_d: "Bona pràctica confirmada — no requereix acció.",
+      det_find_h: "Exemples de troballes",
+      det_findings: ["Vies d'evacuació obstruïdes o mal senyalitzades", "EPIs absents o mal utilitzats", "Emmagatzematge incorrecte de materials", "Ordre i neteja deficients", "Senyalització deteriorada o absent"],
+      det_footnote: "L'anàlisi és orientativa. La validació final és sempre responsabilitat del tècnic signant.",
+      price_eyebrow: "Preus", price_title: "Tria com vols fer-ho servir",
+      price_sub: "Sense permanència a Easy. Cancel·la Comfort quan vulguis.",
+      price_easy_name: "Easy", price_easy_claim: "Fes-lo servir quan ho necessitis",
+      price_easy_price: "15€", price_easy_note: "Vàlid 12 mesos des de la compra",
+      price_easy_features: [["yes","5 informes"],["yes","1 compte"],["no","Repositori d'informes"],["no","Logo de la teva empresa (marca VETLLA visible)"]],
+      price_easy_cta: "Comprar bo",
+      price_comfort_badge: "Recomanat", price_comfort_name: "Comfort", price_comfort_claim: "Per a ús recurrent",
+      price_comfort_price: "29€<span>/mes</span>", price_comfort_note: "",
+      price_comfort_features: [["yes","20 informes al mes"],["yes","Fins a 2 comptes"],["yes","Repositori d'informes"],["yes","Logo de la teva empresa"],["yes","Sense marca VETLLA"]],
+      price_comfort_cta: "Començar amb Comfort",
+      price_ent_name: "Enterprise", price_ent_claim: "Per a consultories i grans empreses",
+      price_ent_price: "Des de 100€<span>/mes</span>", price_ent_note: "",
+      price_ent_features: [["yes","Informes il·limitats"],["yes","Fins a 5 comptes"],["yes","Fins a 5 empreses gestionades"],["yes","Repositori i logo per empresa"],["yes","Suport prioritari"]],
+      price_ent_cta: "Contactar amb nosaltres",
+      proof_quote: "\u201cEl vaig provar a la meva fàbrica abans de llançar-lo. L'informe que genera en 2 minuts té més estructura que els que rebíem del nostre SPA en setmanes.\u201d",
+      proof_author: "— Fundador de VETLLA, responsable HSE en fàbrica industrial",
+      proof_m1_n: "+200", proof_m1_l: "fotos analitzades en fase beta",
+      proof_m2_n: "< 2 min", proof_m2_l: "de foto a informe descarregable",
+      faq_eyebrow: "Preguntes freqüents", faq_title: "Tot el que vols saber abans de provar-lo",
+      faq: [
+        ["La IA es pot equivocar?", "Sí, com qualsevol eina d'anàlisi. VETLLA és un assistent, no un substitut del tècnic. Cada informe inclou un avís clar: la validació final és sempre responsabilitat del signant."],
+        ["Les meves fotos estan segures?", "Les fotos es processen per generar l'anàlisi i no s'emmagatzemen als nostres servidors."],
+        ["Això substitueix el meu SPA?", "No. VETLLA complementa el teu servei de prevenció. Et permet fer seguiment entre visites del SPA, amb evidència fotogràfica."],
+        ["Necessito instal·lar res?", "Res. Funciona des del navegador, al mòbil o a l'ordinador."],
+        ["L'informe és vàlid legalment?", "L'informe segueix l'estructura del RD 39/1997 i la ISO 45001. La seva validesa legal depèn que sigui revisat i signat per un tècnic competent."]
+      ],
+      final_title: "A punt per a la teva primera inspecció amb IA?",
+      final_sub: "Comença ara sense registre. Si vols accés complet i actualitzacions del producte, deixa el teu email.",
+      final_ph: "el_teu@email.com", final_btn: "Accedir gratis",
+      final_alt: "O accedeix directament a l'app", final_alt_link: "→",
+      foot_disclaimer: "VETLLA és una eina d'assistència. Els informes generats requereixen validació per tècnic competent. No substitueixen el criteri professional.",
+      foot_privacy: "Política de privacitat", foot_legal: "Avís legal", foot_contact: "Contacte",
+      foot_copy: "© 2026 VETLLA · Fet a Espanya",
+    },
+  };
+
+  const SUPPORTED = ["es", "en", "ca"];
+  const LS_KEY = "vetlla_lang";
+  const ICON_X = '<svg class="ic ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  const ICON_CHECK = '<svg class="ic ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  const ICON_ALERT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  const ICON_YES = '<svg class="yes-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  const ICON_NO = '<svg class="no-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+  function detectLang() {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved && SUPPORTED.includes(saved)) return saved;
+    const nav = (navigator.language || "es").slice(0, 2).toLowerCase();
+    return SUPPORTED.includes(nav) ? nav : "es";
+  }
+  // catalán oculto: si el guardado es ca, se respeta; si no, solo es/en por UI
+  let lang = detectLang();
+  if (lang === "ca" && !localStorage.getItem(LS_KEY)) lang = "es";
+
+  const $ = (s, all=false) => all ? document.querySelectorAll(s) : document.querySelector(s);
+
+  function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+  function applyLang() {
+    const t = I18N[lang];
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const k = el.getAttribute("data-i18n");
+      if (t[k] !== undefined) el.innerHTML = t[k];
+    });
+    document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+      const k = el.getAttribute("data-i18n-ph");
+      if (t[k] !== undefined) el.placeholder = t[k];
+    });
+
+    // listas dinámicas
+    $("#probWithout").innerHTML = t.prob_without.map(x => `<li>${ICON_X}<span>${esc(x)}</span></li>`).join("");
+    $("#probWith").innerHTML = t.prob_with.map(x => `<li>${ICON_CHECK}<span>${esc(x)}</span></li>`).join("");
+    $("#howPills").innerHTML = t.how_pills.map(x => `<span class="pill">${esc(x)}</span>`).join("");
+    $("#findingsList").innerHTML = t.det_findings.map(x => `<li>${ICON_ALERT}<span>${esc(x)}</span></li>`).join("");
+
+    const feat = (arr) => arr.map(([type, txt]) =>
+      `<li class="${type==='no'?'no':''}">${type==='yes'?ICON_YES:ICON_NO}<span>${esc(txt)}</span></li>`).join("");
+    $("#easyFeatures").innerHTML = feat(t.price_easy_features);
+    $("#comfortFeatures").innerHTML = feat(t.price_comfort_features);
+    $("#entFeatures").innerHTML = feat(t.price_ent_features);
+
+    $("#faqList").innerHTML = t.faq.map(([q, a], i) => `
+      <div class="faq-item">
+        <button class="faq-q" data-faq="${i}">${esc(q)}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><p>${esc(a)}</p></div>
+      </div>`).join("");
+    bindFaq();
+
+    document.querySelectorAll(".lang-switch button").forEach(b =>
+      b.classList.toggle("active", b.dataset.lang === lang));
+  }
+
+  function bindFaq() {
+    document.querySelectorAll(".faq-q").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const item = btn.closest(".faq-item");
+        const open = item.classList.contains("open");
+        document.querySelectorAll(".faq-item").forEach(i => {
+          i.classList.remove("open");
+          i.querySelector(".faq-a").style.maxHeight = null;
+        });
+        if (!open) {
+          item.classList.add("open");
+          const a = item.querySelector(".faq-a");
+          a.style.maxHeight = a.scrollHeight + "px";
+        }
+      });
+    });
+  }
+
+  document.querySelectorAll(".lang-switch button").forEach(b => {
+    b.addEventListener("click", () => {
+      lang = b.dataset.lang;
+      localStorage.setItem(LS_KEY, lang);
+      applyLang();
+    });
+  });
+
+  $("#menuToggle").addEventListener("click", () => {
+    document.querySelector(".nav-links").style.display =
+      document.querySelector(".nav-links").style.display === "flex" ? "" : "flex";
+  });
+
+  $("#finalBtn").addEventListener("click", () => { window.location.href = "/app"; });
+
+  applyLang();
+})();
+</script>
+</body>
+</html>
