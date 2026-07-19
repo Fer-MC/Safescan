@@ -47,6 +47,29 @@ CONF_LABEL = {
     "ca": {"high": "Alta", "medium": "Mitjana", "low": "Baixa"},
 }
 
+# Plazo estimado por clasificación — regla FIJA, no la genera la IA.
+# Se deriva directamente de la clave neutra de clasificación (critical/important/minor/conform).
+DEADLINE_LABEL = {
+    "es": {
+        "critical":  "Requiere acción inmediata",
+        "important": "Corto plazo (1-6 semanas)",
+        "minor":     "Próxima revisión programada",
+        "conform":   "No aplica",
+    },
+    "en": {
+        "critical":  "Immediate action required",
+        "important": "Short term (1-6 weeks)",
+        "minor":     "Next scheduled review",
+        "conform":   "Not applicable",
+    },
+    "ca": {
+        "critical":  "Requereix acció immediata",
+        "important": "Curt termini (1-6 setmanes)",
+        "minor":     "Propera revisió programada",
+        "conform":   "No aplica",
+    },
+}
+
 # Nombre del idioma para instruir al modelo sobre el idioma de redacción
 LANG_NAME = {"es": "español", "en": "English", "ca": "català"}
 
@@ -70,11 +93,14 @@ REPORT = {
         "f_loc": "Ubicación",
         "f_class": "Clasificación",
         "f_actions": "Acción recomendada",
+        "f_deadline": "Plazo estimado",
         "f_norm": "Normativa de referencia",
         "f_conf": "Confianza del análisis",
         "limits_heading": "Limitaciones del análisis automático",
         "no_limits": "No se especificaron limitaciones.",
         "sign_line": "Responsable: ____________________   Función: __________   Fecha: __________",
+        "sign_zone": "Responsable de zona: ____________________   Fecha: __________",
+        "sign_supervisor": "Supervisor: ____________________   Fecha: __________",
         "legal": ("AVISO LEGAL — Este documento es un INFORME DE INSPECCIÓN VISUAL DE APOYO "
                   "generado mediante análisis automático de imágenes con inteligencia artificial. "
                   "Registra observaciones de seguridad visibles y NO constituye ni sustituye la "
@@ -101,11 +127,14 @@ REPORT = {
         "f_loc": "Location",
         "f_class": "Classification",
         "f_actions": "Recommended action",
+        "f_deadline": "Estimated timeframe",
         "f_norm": "Reference regulation",
         "f_conf": "Analysis confidence",
         "limits_heading": "Limitations of the automated analysis",
         "no_limits": "No limitations were specified.",
         "sign_line": "Responsible: ____________________   Role: __________   Date: __________",
+        "sign_zone": "Zone lead: ____________________   Date: __________",
+        "sign_supervisor": "Supervisor: ____________________   Date: __________",
         "legal": ("LEGAL NOTICE — This document is a SUPPORTING VISUAL INSPECTION REPORT generated "
                   "through automated image analysis with artificial intelligence. It records visible "
                   "safety observations and does NOT constitute or replace the occupational risk "
@@ -132,11 +161,14 @@ REPORT = {
         "f_loc": "Ubicació",
         "f_class": "Classificació",
         "f_actions": "Acció recomanada",
+        "f_deadline": "Termini estimat",
         "f_norm": "Normativa de referència",
         "f_conf": "Confiança de l'anàlisi",
         "limits_heading": "Limitacions de l'anàlisi automàtica",
         "no_limits": "No s'han especificat limitacions.",
         "sign_line": "Responsable: ____________________   Funció: __________   Data: __________",
+        "sign_zone": "Responsable de zona: ____________________   Data: __________",
+        "sign_supervisor": "Supervisor: ____________________   Data: __________",
         "legal": ("AVÍS LEGAL — Aquest document és un INFORME D'INSPECCIÓ VISUAL DE SUPORT generat "
                   "mitjançant anàlisi automàtica d'imatges amb intel·ligència artificial. Registra "
                   "observacions de seguretat visibles i NO constitueix ni substitueix l'avaluació de "
