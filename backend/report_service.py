@@ -40,12 +40,19 @@ GRIS    = RGBColor(0x4A, 0x55, 0x68)
 FONT_BODY = "Aptos"
 FONT_TITLE = "Aptos Display"
 
-# Sombreado pastel SOLO para la celda de clasificación
+# Sombreado SOLO para la celda de clasificación.
+# "critical" usa un rojo sólido con texto blanco para que destaque claramente
+# frente a "important" (que se queda en el tono pastel). El resto, sin cambios.
 COLOR_CLASIF = {
-    "critical":  "F5D6D6",
+    "critical":  "D85A30",
     "important": "F5D6D6",
     "minor":     "FBE0C7",
     "conform":   "DCEBD1",
+}
+# Color de texto de la celda de clasificación, por clave (por defecto GRIS oscuro/negro
+# del documento; "critical" es la única que necesita texto blanco sobre su fondo sólido).
+TEXT_CLASIF = {
+    "critical": RGBColor(0xFF, 0xFF, 0xFF),
 }
 
 # Ancho de columna etiqueta
@@ -228,7 +235,7 @@ def generar_informe(
 
             clave = obs.get("clasificacion", "important")
 
-            def fila(k, v, shade=None):
+            def fila(k, v, shade=None, text_color=None, text_bold=False):
                 row = tabla.add_row()
                 _prevent_row_split(row)
                 cells = row.cells
@@ -247,6 +254,10 @@ def generar_informe(
                 r1 = p1.add_run(str(v))
                 r1.font.size = Pt(9)
                 r1.font.name = FONT_BODY
+                if text_color:
+                    r1.font.color.rgb = text_color
+                if text_bold:
+                    r1.bold = True
                 if shade:
                     _shade_cell(cells[1], shade)
                 return cells
@@ -254,7 +265,8 @@ def generar_informe(
             fila(T["f_desc"], obs.get("descripcion", ""))
             if obs.get("ubicacion"):
                 fila(T["f_loc"], obs.get("ubicacion", ""))
-            fila(T["f_class"], clabel.get(clave, clave), shade=COLOR_CLASIF.get(clave))
+            fila(T["f_class"], clabel.get(clave, clave), shade=COLOR_CLASIF.get(clave),
+                 text_color=TEXT_CLASIF.get(clave), text_bold=(clave == "critical"))
             if obs.get("acciones"):
                 fila(T["f_actions"], "\n".join(f"• {a}" for a in obs.get("acciones", [])))
             fila(T["f_norm"], ", ".join(obs.get("normativa", [])) or "—")
