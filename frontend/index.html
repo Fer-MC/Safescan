@@ -109,6 +109,8 @@
   .dropzone h3 { font-size: 1rem; font-weight: 600; margin-bottom: .35rem; }
   .dropzone .hint { font-size: .78rem; color: var(--muted); }
   .dropzone input[type=file] { display: none; }
+  .privacy-note { font-size: .75rem; color: var(--muted); text-align: center;
+    margin-top: .7rem; opacity: .85; }
 
   /* --- Preview --- */
   .preview-wrap { display: none; }
@@ -271,6 +273,7 @@
     <div class="hint" data-i18n="dz_hint"></div>
     <input type="file" id="fileInput" accept="image/*" style="display:none">
   </div>
+  <p class="privacy-note" data-i18n="img_note"></p>
   
   <div class="preview-wrap" id="previewWrap">
     <div class="preview" id="preview">
@@ -339,6 +342,7 @@
       hero_sub: "Fotografía el puesto o área de trabajo con tu móvil. La IA identifica observaciones de seguridad, las clasifica por severidad y genera un informe Word listo para firmar.",
       dz_title: "Arrastra una imagen o haz clic para subir",
       dz_hint: "JPG, PNG o WEBP · máx. 5 MB",
+      img_note: "Las imágenes se eliminan tras el análisis.",
       btn_camera: "📷 Cámara",
       btn_gallery: "🖼️ Galería",
       btn_analyze: "Analizar imagen",
@@ -377,6 +381,7 @@
       hero_sub: "Take a photo of the workstation or work area with your phone. The AI identifies safety observations, classifies them by severity and generates a Word report ready to sign.",
       dz_title: "Drag an image or click to upload",
       dz_hint: "JPG, PNG or WEBP · max 5 MB",
+      img_note: "Images are deleted after the analysis.",
       btn_camera: "📷 Camera",
       btn_gallery: "🖼️ Gallery",
       btn_analyze: "Analyse image",
@@ -415,6 +420,7 @@
       hero_sub: "Fotografia el lloc o àrea de treball amb el teu mòbil. La IA identifica observacions de seguretat, les classifica per severitat i genera un informe Word llest per signar.",
       dz_title: "Arrossega una imatge o fes clic per pujar",
       dz_hint: "JPG, PNG o WEBP · màx. 5 MB",
+      img_note: "Les imatges s'eliminen després de l'anàlisi.",
       btn_camera: "📷 Càmera",
       btn_gallery: "🖼️ Galeria",
       btn_analyze: "Analitza la imatge",
@@ -450,11 +456,17 @@
   const SUPPORTED = ["es", "en", "ca"];
   const LS_KEY = "vetlla_lang";
 
+  // El catalán está oculto en el menú (pendiente de validar calidad de la IA en ca).
+  // Mientras esté oculto, no debe poder activarse solo (ni por idioma guardado, ni por
+  // idioma del navegador) para evitar analizar/informar en un idioma que el usuario no eligió.
+  const CA_ENABLED = false;
+
   function detectLang() {
     const saved = localStorage.getItem(LS_KEY);
-    if (saved && SUPPORTED.includes(saved)) return saved;
+    if (saved && SUPPORTED.includes(saved) && (CA_ENABLED || saved !== "ca")) return saved;
     const nav = (navigator.language || "es").slice(0, 2).toLowerCase();
-    return SUPPORTED.includes(nav) ? nav : "es";
+    if (SUPPORTED.includes(nav) && (CA_ENABLED || nav !== "ca")) return nav;
+    return "es";
   }
 
   let lang = detectLang();
@@ -508,7 +520,7 @@
   const previewWrap = $("previewWrap"), preview = $("preview"), previewImg = $("previewImg");
   const analyzeBtn = $("analyzeBtn"), resetBtn = $("resetBtn"), reportBtn = $("reportBtn");
   const results = $("results"), toast = $("toast");
-  let currentFile = null, lastAnalysis = null;
+  let currentFile = null, lastAnalysis = null, analysisLang = null;
 
   dropzone.addEventListener("click", () => fileInput.click());
   dropzone.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fileInput.click(); } });
@@ -534,7 +546,7 @@
   }
 
 resetBtn.addEventListener("click", () => {
-    currentFile = null; lastAnalysis = null;
+    currentFile = null; lastAnalysis = null; analysisLang = null;
     fileInput.value = "";
     previewWrap.classList.remove("show"); results.classList.remove("show");
     dropzone.style.display = "block";
@@ -555,6 +567,7 @@ resetBtn.addEventListener("click", () => {
         return showToast(json.message || t.m_fail, true);
       }
       lastAnalysis = json.data;
+      analysisLang = lang;
       renderResults(json.data);
     } catch {
       showToast(t.m_conn, true);
@@ -613,6 +626,11 @@ resetBtn.addEventListener("click", () => {
 
   reportBtn.addEventListener("click", async () => {
     if (!lastAnalysis) return;
+    // Usa SIEMPRE el idioma con el que se hizo el análisis (analysisLang), no el idioma
+    // que la interfaz tenga seleccionado en este momento. Evita informes con la estructura
+    // en un idioma y el contenido de la IA en otro si el usuario cambia el selector entre
+    // analizar y descargar.
+    const reportLang = analysisLang || lang;
     const t = I18N[lang];
     reportBtn.disabled = true; reportBtn.textContent = t.btn_reporting;
     try {
@@ -621,7 +639,7 @@ resetBtn.addEventListener("click", () => {
       form.append("empresa", $("empresa").value);
       form.append("centro", $("centro").value);
       form.append("responsable", $("responsable").value);
-      form.append("lang", lang);
+      form.append("lang", reportLang);
       if (currentFile) form.append("image", currentFile);
       const res = await fetch("/api/report", { method: "POST", body: form });
       if (!res.ok) throw new Error();
@@ -629,7 +647,7 @@ resetBtn.addEventListener("click", () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = ({es:"Informe_seguridad_VETLLA.docx", en:"VETLLA_safety_report.docx", ca:"Informe_seguretat_VETLLA.docx"})[lang];
+      a.download = ({es:"Informe_seguridad_VETLLA.docx", en:"VETLLA_safety_report.docx", ca:"Informe_seguretat_VETLLA.docx"})[reportLang];
       a.click();
       URL.revokeObjectURL(url);
       showToast(t.report_ok);
