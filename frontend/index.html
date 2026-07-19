@@ -315,6 +315,14 @@
         <label for="responsable" data-i18n="f_inspector"></label>
         <input type="text" id="responsable" data-i18n-ph="ph_inspector">
       </div>
+      <div class="field">
+        <label for="respZona" data-i18n="f_zone_lead"></label>
+        <input type="text" id="respZona" data-i18n-ph="ph_zone_lead">
+      </div>
+      <div class="field">
+        <label for="supervisor" data-i18n="f_supervisor"></label>
+        <input type="text" id="supervisor" data-i18n-ph="ph_supervisor">
+      </div>
       <button class="btn btn-primary" id="reportBtn" data-i18n="btn_report"></button>
     </div>
   </section>
@@ -358,6 +366,8 @@
       f_company: "Empresa (opcional)", ph_company: "Mi Empresa S.L.",
       f_site: "Centro de trabajo (opcional)", ph_site: "Planta de producción",
       f_inspector: "Responsable (opcional)", ph_inspector: "Nombre y apellidos",
+      f_zone_lead: "Responsable de zona (opcional)", ph_zone_lead: "Nombre y apellidos",
+      f_supervisor: "Supervisor (opcional)", ph_supervisor: "Nombre y apellidos",
       btn_report: "Descargar informe .docx",
       btn_reporting: "Generando…",
       report_ok: "Informe descargado. Recuerda validarlo presencialmente.",
@@ -397,6 +407,8 @@
       f_company: "Company (optional)", ph_company: "My Company Ltd.",
       f_site: "Work site (optional)", ph_site: "Production plant",
       f_inspector: "Responsible (optional)", ph_inspector: "Full name",
+      f_zone_lead: "Zone lead (optional)", ph_zone_lead: "Full name",
+      f_supervisor: "Supervisor (optional)", ph_supervisor: "Full name",
       btn_report: "Download .docx report",
       btn_reporting: "Generating…",
       report_ok: "Report downloaded. Remember to validate it on-site.",
@@ -436,6 +448,8 @@
       f_company: "Empresa (opcional)", ph_company: "La meva Empresa SL",
       f_site: "Centre de treball (opcional)", ph_site: "Planta de producció",
       f_inspector: "Responsable (opcional)", ph_inspector: "Nom i cognoms",
+      f_zone_lead: "Responsable de zona (opcional)", ph_zone_lead: "Nom i cognoms",
+      f_supervisor: "Supervisor (opcional)", ph_supervisor: "Nom i cognoms",
       btn_report: "Descarrega informe .docx",
       btn_reporting: "Generant…",
       report_ok: "Informe descarregat. Recorda validar-lo presencialment.",
@@ -639,6 +653,8 @@ resetBtn.addEventListener("click", () => {
       form.append("empresa", $("empresa").value);
       form.append("centro", $("centro").value);
       form.append("responsable", $("responsable").value);
+      form.append("resp_zona", $("respZona").value);
+      form.append("supervisor", $("supervisor").value);
       form.append("lang", reportLang);
       if (currentFile) form.append("image", currentFile);
       const res = await fetch("/api/report", { method: "POST", body: form });
