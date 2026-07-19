@@ -4,6 +4,8 @@ main.py — Aplicación FastAPI de VETLLA.
 RUTAS:
   GET  /              -> landing.html (página comercial)
   GET  /app           -> index.html (la app: foto -> análisis -> informe)
+  GET  /aviso-legal   -> aviso-legal.html (placeholder, pendiente de contenido legal)
+  GET  /privacidad    -> privacidad.html (placeholder, pendiente de contenido legal)
   GET  /api/health    -> estado del servicio
   POST /api/analyze   -> analiza imagen con Claude Vision (param: lang)
   POST /api/report    -> genera informe Word (param: lang, incluye la foto)
@@ -66,6 +68,18 @@ async def app_page():
     return FileResponse(FRONTEND_DIR / "index.html")
 
 
+# --- Páginas legales -------------------------------------------------------
+# Placeholders: el contenido definitivo depende de datos fiscales pendientes.
+@app.get("/aviso-legal")
+async def aviso_legal():
+    return FileResponse(FRONTEND_DIR / "aviso-legal.html")
+
+
+@app.get("/privacidad")
+async def privacidad():
+    return FileResponse(FRONTEND_DIR / "privacidad.html")
+
+
 # --- Salud -----------------------------------------------------------------
 @app.get("/api/health")
 async def health():
@@ -119,6 +133,8 @@ async def report(
     empresa: str = Form(""),
     centro: str = Form(""),
     responsable: str = Form(""),
+    resp_zona: str = Form(""),
+    supervisor: str = Form(""),
     lang: str = Form("es"),
     image: UploadFile | None = File(None),
 ):
@@ -139,6 +155,8 @@ async def report(
         empresa=empresa.strip()[:120],
         centro=centro.strip()[:120],
         responsable=responsable.strip()[:120],
+        resp_zona=resp_zona.strip()[:120],
+        supervisor=supervisor.strip()[:120],
         lang=lang,
         image_bytes=image_bytes,
     )
