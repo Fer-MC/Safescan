@@ -23,7 +23,7 @@ from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
-from i18n import CLASIF_LABEL, CONF_LABEL, normalize_lang, report_strings
+from i18n import CLASIF_LABEL, CONF_LABEL, DEADLINE_LABEL, normalize_lang, report_strings
 
 try:
     from PIL import Image, ImageOps
@@ -144,6 +144,8 @@ def generar_informe(
     empresa: str = "",
     centro: str = "",
     responsable: str = "",
+    resp_zona: str = "",
+    supervisor: str = "",
     lang: str = "es",
     image_bytes: bytes | None = None,
 ) -> BytesIO:
@@ -151,6 +153,7 @@ def generar_informe(
     T = report_strings(lang)
     clabel = CLASIF_LABEL[lang]
     conflabel = CONF_LABEL[lang]
+    deadlinelabel = DEADLINE_LABEL[lang]
 
     doc = Document()
     _set_document_fonts(doc)
@@ -269,6 +272,8 @@ def generar_informe(
                  text_color=TEXT_CLASIF.get(clave), text_bold=(clave == "critical"))
             if obs.get("acciones"):
                 fila(T["f_actions"], "\n".join(f"• {a}" for a in obs.get("acciones", [])))
+            # Plazo estimado: NO viene de la IA, se deriva por regla fija de la clasificación.
+            fila(T["f_deadline"], deadlinelabel.get(clave, deadlinelabel["important"]))
             fila(T["f_norm"], ", ".join(obs.get("normativa", [])) or "—")
             fila(T["f_conf"], conflabel.get(obs.get("confianza", "medium")))
 
@@ -294,6 +299,19 @@ def generar_informe(
     firma.paragraph_format.space_before = Pt(14)
     fr = firma.add_run(T["sign_line"])
     fr.font.name = FONT_BODY
+
+    # Firmantes adicionales opcionales — solo aparecen si el campo se rellenó en el formulario.
+    if resp_zona.strip():
+        firma_zona = doc.add_paragraph()
+        firma_zona.paragraph_format.space_before = Pt(8)
+        fz = firma_zona.add_run(T["sign_zone"])
+        fz.font.name = FONT_BODY
+
+    if supervisor.strip():
+        firma_sup = doc.add_paragraph()
+        firma_sup.paragraph_format.space_before = Pt(8)
+        fs = firma_sup.add_run(T["sign_supervisor"])
+        fs.font.name = FONT_BODY
 
     buffer = BytesIO()
     doc.save(buffer)
