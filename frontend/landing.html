@@ -152,6 +152,10 @@
   .pricing-head { text-align: center; }
   .pricing-head .section-lead { margin: 0 auto; }
   .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 2.5rem; align-items: stretch; }
+  .try-first { text-align: center; margin-top: 2.4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .try-first p { font-size: .95rem; color: var(--muted); margin-bottom: .3rem; }
+  .try-first a { font-size: .95rem; font-weight: 700; color: var(--naranja); }
+  .try-first a:hover { text-decoration: underline; }
   .card { background: var(--surface); border: 1px solid var(--border);
     border-radius: var(--radius); padding: 1.8rem 1.5rem; display: flex; flex-direction: column;
     box-shadow: var(--shadow-sm); position: relative; }
@@ -260,7 +264,6 @@
     <p class="sub" data-i18n="hero_sub"></p>
     <div class="hero-ctas">
       <a href="/app" class="btn btn-primary btn-lg" data-i18n="hero_cta1"></a>
-      <a href="/app" class="btn btn-outline btn-lg" data-i18n="hero_cta2"></a>
     </div>
     <p class="reassure" data-i18n="hero_reassure"></p>
   </div>
@@ -369,6 +372,10 @@
         <a href="/app" class="btn btn-outline" data-i18n="price_ent_cta"></a>
       </div>
     </div>
+    <div class="try-first">
+      <p data-i18n="price_try_q"></p>
+      <a href="/app" data-i18n="price_try_link"></a>
+    </div>
   </div>
 </section>
 
@@ -427,12 +434,12 @@
 (() => {
   const I18N = {
     es: {
-      nav_how: "Cómo funciona", nav_pricing: "Precios", nav_login: "Acceder", nav_cta: "Probar gratis",
+      nav_how: "Cómo funciona", nav_pricing: "Precios", nav_login: "Acceder", nav_cta: "Acceso de prueba",
       hero_eyebrow: "Para técnicos y responsables de PRL en industria",
       hero_h1: "Tu visita de seguridad convertida en informe profesional en menos de 2 minutos.",
       hero_sub: "Sube una foto de tu instalación. VETLLA detecta los riesgos, los clasifica por nivel de gravedad y genera un informe Word listo para enviar — compatible con RD 39/1997 e ISO 45001. Sin técnico externo. Sin esperas.",
-      hero_cta1: "Analizar mi primera foto — gratis", hero_cta2: "Solicitar una demo",
-      hero_reassure: "Sin registro · Sin tarjeta de crédito · Informe descargable al instante",
+      hero_cta1: "Analizar mi primera foto — acceso de prueba",
+      hero_reassure: "Sin tarjeta de crédito · Informe descargable al instante",
       prob_eyebrow: "El problema",
       prob_title: "¿Cuánto tarda hoy una visita de seguridad en convertirse en un informe digitalizado con fotos que puedas usar? ¿Y si pasaran solo dos minutos?",
       prob_body: "La mayoría de pequeñas y medianas fábricas cumplen el expediente con una visita anual de seguridad. El informe llega tarde, no tiene evidencia fotográfica, no es comparable con periodos anteriores y no sirve para tomar decisiones reales. Resultado: cubres el papel, pero no tienes vigilancia real de tu instalación.",
@@ -455,6 +462,8 @@
       det_footnote: "El análisis es orientativo. La validación final es siempre responsabilidad del técnico firmante.",
       price_eyebrow: "Precios", price_title: "Elige cómo quieres usarlo",
       price_sub: "Sin permanencia en Easy. Cancela Comfort cuando quieras.",
+      price_try_q: "¿Quieres probarlo antes de contratar?",
+      price_try_link: "Solicita tu acceso de prueba sin compromiso →",
       price_easy_name: "Easy", price_easy_claim: "Úsalo cuando lo necesites",
       price_easy_price: "15€", price_easy_note: "Válido 12 meses desde la compra",
       price_easy_features: [["yes","5 informes"],["yes","1 cuenta"],["no","Repositorio de informes"],["no","Logo de tu empresa (marca VETLLA visible)"]],
@@ -480,20 +489,20 @@
         ["¿El informe es válido legalmente?", "El informe sigue la estructura del RD 39/1997 e ISO 45001. Su validez legal depende de que sea revisado y firmado por un técnico competente."]
       ],
       final_title: "¿Listo para tu primera inspección con IA?",
-      final_sub: "Empieza ahora sin registro. Si quieres acceso completo y actualizaciones del producto, deja tu email.",
-      final_ph: "tu@email.com", final_btn: "Acceder gratis",
+      final_sub: "Empieza ahora mismo. Si quieres acceso completo y estar al tanto de las novedades del producto, déjanos tu email.",
+      final_ph: "tu@email.com", final_btn: "Solicitar acceso",
       final_alt: "O accede directamente a la app", final_alt_link: "→",
       foot_disclaimer: "VETLLA es una herramienta de asistencia. Los informes generados requieren validación por técnico competente. No sustituyen el criterio profesional.",
       foot_legal: "Aviso legal", foot_privacy: "Privacidad", foot_contact: "Contacto",
       foot_copy: "© 2026 VETLLA · Hecho en España",
     },
     en: {
-      nav_how: "How it works", nav_pricing: "Pricing", nav_login: "Log in", nav_cta: "Try for free",
+      nav_how: "How it works", nav_pricing: "Pricing", nav_login: "Log in", nav_cta: "Trial access",
       hero_eyebrow: "For OSH technicians and safety managers in industry",
       hero_h1: "Your safety walk turned into a professional report in under 2 minutes.",
       hero_sub: "Upload a photo of your facility. VETLLA detects the risks, classifies them by severity and generates a Word report ready to send — compatible with Spanish RD 39/1997 and ISO 45001. No external technician. No waiting.",
-      hero_cta1: "Analyse my first photo — free", hero_cta2: "Request a demo",
-      hero_reassure: "No sign-up · No credit card · Report downloadable instantly",
+      hero_cta1: "Analyse my first photo — trial access",
+      hero_reassure: "No credit card · Report downloadable instantly",
       prob_eyebrow: "The problem",
       prob_title: "How long does it take today for a safety walk to become a digitised report with photos you can actually use? What if it only took two minutes?",
       prob_body: "Most small and medium factories tick the box with a single annual safety visit. The report arrives late, has no photographic evidence, isn't comparable to previous periods and doesn't support real decisions. The result: you cover the paperwork, but you have no real oversight of your facility.",
@@ -516,6 +525,8 @@
       det_footnote: "The analysis is indicative. Final validation is always the responsibility of the signing technician.",
       price_eyebrow: "Pricing", price_title: "Choose how you want to use it",
       price_sub: "No commitment on Easy. Cancel Comfort whenever you want.",
+      price_try_q: "Want to try it before committing?",
+      price_try_link: "Get trial access with no obligation →",
       price_easy_name: "Easy", price_easy_claim: "Use it when you need it",
       price_easy_price: "€15", price_easy_note: "Valid 12 months from purchase",
       price_easy_features: [["yes","5 reports"],["yes","1 account"],["no","Report repository"],["no","Your company logo (VETLLA branding visible)"]],
@@ -541,20 +552,20 @@
         ["Is the report legally valid?", "The report follows the structure of RD 39/1997 and ISO 45001. Its legal validity depends on being reviewed and signed by a competent technician."]
       ],
       final_title: "Ready for your first AI inspection?",
-      final_sub: "Start now without signing up. If you want full access and product updates, leave your email.",
-      final_ph: "you@email.com", final_btn: "Access for free",
+      final_sub: "Start right now. If you want full access and product updates, leave your email.",
+      final_ph: "you@email.com", final_btn: "Request access",
       final_alt: "Or go straight to the app", final_alt_link: "→",
       foot_disclaimer: "VETLLA is an assistance tool. The reports generated require validation by a competent technician. They do not replace professional judgement.",
       foot_legal: "Legal notice", foot_privacy: "Privacy", foot_contact: "Contact",
       foot_copy: "© 2026 VETLLA · Made in Spain",
     },
     ca: {
-      nav_how: "Com funciona", nav_pricing: "Preus", nav_login: "Accedir", nav_cta: "Provar gratis",
+      nav_how: "Com funciona", nav_pricing: "Preus", nav_login: "Accedir", nav_cta: "Accés de prova",
       hero_eyebrow: "Per a tècnics i responsables de PRL a la indústria",
       hero_h1: "La teva visita de seguretat convertida en informe professional en menys de 2 minuts.",
       hero_sub: "Puja una foto de la teva instal·lació. VETLLA detecta els riscos, els classifica per nivell de gravetat i genera un informe Word llest per enviar — compatible amb el RD 39/1997 i la ISO 45001. Sense tècnic extern. Sense esperes.",
-      hero_cta1: "Analitzar la meva primera foto — gratis", hero_cta2: "Sol·licitar una demo",
-      hero_reassure: "Sense registre · Sense targeta de crèdit · Informe descarregable a l'instant",
+      hero_cta1: "Analitzar la meva primera foto — accés de prova",
+      hero_reassure: "Sense targeta de crèdit · Informe descarregable a l'instant",
       prob_eyebrow: "El problema",
       prob_title: "Quant triga avui una visita de seguretat a convertir-se en un informe digitalitzat amb fotos que puguis fer servir? I si només trigués dos minuts?",
       prob_body: "La majoria de petites i mitjanes fàbriques compleixen l'expedient amb una visita anual de seguretat. L'informe arriba tard, no té evidència fotogràfica, no és comparable amb períodes anteriors i no serveix per prendre decisions reals. Resultat: cobreixes el paper, però no tens vigilància real de la teva instal·lació.",
@@ -577,6 +588,8 @@
       det_footnote: "L'anàlisi és orientativa. La validació final és sempre responsabilitat del tècnic signant.",
       price_eyebrow: "Preus", price_title: "Tria com vols fer-ho servir",
       price_sub: "Sense permanència a Easy. Cancel·la Comfort quan vulguis.",
+      price_try_q: "Vols provar-ho abans de contractar?",
+      price_try_link: "Sol·licita el teu accés de prova sense compromís →",
       price_easy_name: "Easy", price_easy_claim: "Fes-lo servir quan ho necessitis",
       price_easy_price: "15€", price_easy_note: "Vàlid 12 mesos des de la compra",
       price_easy_features: [["yes","5 informes"],["yes","1 compte"],["no","Repositori d'informes"],["no","Logo de la teva empresa (marca VETLLA visible)"]],
@@ -602,8 +615,8 @@
         ["L'informe és vàlid legalment?", "L'informe segueix l'estructura del RD 39/1997 i la ISO 45001. La seva validesa legal depèn que sigui revisat i signat per un tècnic competent."]
       ],
       final_title: "A punt per a la teva primera inspecció amb IA?",
-      final_sub: "Comença ara sense registre. Si vols accés complet i actualitzacions del producte, deixa el teu email.",
-      final_ph: "el_teu@email.com", final_btn: "Accedir gratis",
+      final_sub: "Comença ara mateix. Si vols accés complet i estar al dia de les novetats del producte, deixa'ns el teu email.",
+      final_ph: "el_teu@email.com", final_btn: "Sol·licita accés",
       final_alt: "O accedeix directament a l'app", final_alt_link: "→",
       foot_disclaimer: "VETLLA és una eina d'assistència. Els informes generats requereixen validació per tècnic competent. No substitueixen el criteri professional.",
       foot_legal: "Avís legal", foot_privacy: "Privacitat", foot_contact: "Contacte",
@@ -702,7 +715,20 @@
       document.querySelector(".nav-links").style.display === "flex" ? "" : "flex";
   });
 
-  $("#finalBtn").addEventListener("click", () => { window.location.href = "/app"; });
+  // Fase de testeo: sin backend de email todavía. Al pulsar, se abre el cliente de
+  // correo del visitante con un mensaje pre-rellenado dirigido a fermc1983@gmail.com,
+  // incluyendo el email que ha escrito. TEMPORAL — sustituir por hola@vetlla.com y,
+  // si se necesita captura automática real, por un envío desde el backend.
+  $("#finalBtn").addEventListener("click", () => {
+    const emailInput = $("#finalEmail");
+    const visitorEmail = emailInput.value.trim();
+    if (!visitorEmail) { emailInput.focus(); return; }
+    const subject = encodeURIComponent("Solicitud de acceso — VETLLA");
+    const body = encodeURIComponent(
+      "Nueva solicitud de acceso desde la landing de VETLLA.\n\nEmail del interesado: " + visitorEmail
+    );
+    window.location.href = "mailto:fermc1983@gmail.com?subject=" + subject + "&body=" + body;
+  });
 
   applyLang();
 })();
