@@ -41,6 +41,7 @@ from config import settings, validate_runtime
 from claude_service import analizar_imagen, AnalysisError
 from report_service import generar_informe
 from i18n import normalize_lang
+from usage_store import is_valid_email, is_whitelisted, can_download, record_usage, normalize_email
 
 logging.basicConfig(level=logging.INFO if not settings.debug else logging.DEBUG)
 logger = logging.getLogger("vetlla")
@@ -136,8 +137,25 @@ async def report(
     resp_zona: str = Form(""),
     supervisor: str = Form(""),
     lang: str = Form("es"),
+    email: str = Form(...),
     image: UploadFile | None = File(None),
 ):
+    # --- Gate de email + tope de 1 informe gratuito (whitelist exenta) ---
+    email_norm = normalize_email(email)
+    if not is_valid_email(email_norm):
+        return JSONResponse(
+            status_code=400,
+            content={"error": "bad_email", "message": "Introduce un email válido para descargar el informe."},
+        )
+    if not can_download(email_norm):
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": "limit_reached",
+                "message": "Has usado tu análisis gratuito. Contacta con nosotros para seguir.",
+            },
+        )
+
     try:
         analisis = json.loads(payload)
     except json.JSONDecodeError:
@@ -160,6 +178,11 @@ async def report(
         lang=lang,
         image_bytes=image_bytes,
     )
+    # Se registra el uso solo cuando el informe se ha generado con éxito,
+    # y solo si el email no está en la whitelist (esos nunca cuentan).
+    if not is_whitelisted(email_norm):
+        record_usage(email_norm)
+
     from i18n import report_strings
     filename = report_strings(lang)["filename"]
     return StreamingResponse(
