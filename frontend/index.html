@@ -210,6 +210,18 @@
 
   .report-box { background: var(--surface); border: 1px solid var(--border);
     border-radius: 12px; padding: 1.2rem; margin-top: 1.5rem; }
+  .field-hint { display: block; font-size: .74rem; color: var(--muted); margin-top: .3rem; }
+  .report-done, .report-blocked { border-radius: 12px; padding: 1.6rem 1.4rem;
+    margin-top: 1.5rem; text-align: center; }
+  .report-done { background: #f2fbf5; border: 1px solid #c9ecd4; }
+  .report-blocked { background: #fff7f0; border: 1px solid #f3d9bd; }
+  .state-icon { width: 40px; height: 40px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; margin: 0 auto .8rem;
+    font-size: 1.2rem; font-weight: 800; color: #fff; }
+  .state-icon.ok { background: #3B6D11; }
+  .state-icon.warn { background: var(--naranja); }
+  .report-done h4, .report-blocked h4 { font-size: 1rem; margin-bottom: .5rem; color: var(--text); }
+  .report-done p, .report-blocked p { font-size: .88rem; color: var(--muted); margin-bottom: 1.1rem; }
   .report-box h4 { font-size: .98rem; margin-bottom: .8rem; }
   .field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .7rem; }
   .field label { font-size: .78rem; font-weight: 600; color: var(--muted); }
@@ -301,8 +313,13 @@
       <ul id="limitsList"></ul>
     </div>
 
-    <div class="report-box">
+    <div class="report-box" id="reportBox">
       <h4 data-i18n="report_title"></h4>
+      <div class="field">
+        <label for="userEmail" data-i18n="f_email"></label>
+        <input type="email" id="userEmail" data-i18n-ph="ph_email" required>
+        <span class="field-hint" data-i18n="f_email_hint"></span>
+      </div>
       <div class="field">
         <label for="empresa" data-i18n="f_company"></label>
         <input type="text" id="empresa" data-i18n-ph="ph_company">
@@ -324,6 +341,20 @@
         <input type="text" id="supervisor" data-i18n-ph="ph_supervisor">
       </div>
       <button class="btn btn-primary" id="reportBtn" data-i18n="btn_report"></button>
+    </div>
+
+    <div class="report-done" id="reportDone" style="display:none">
+      <div class="state-icon ok">✓</div>
+      <h4 data-i18n="done_title"></h4>
+      <p data-i18n="done_text"></p>
+      <button class="btn btn-outline" id="newAnalysisBtn" data-i18n="done_new"></button>
+    </div>
+
+    <div class="report-blocked" id="reportBlocked" style="display:none">
+      <div class="state-icon warn">!</div>
+      <h4 data-i18n="blocked_title"></h4>
+      <p data-i18n="blocked_text"></p>
+      <a class="btn btn-primary" id="blockedContactBtn" data-i18n="blocked_cta"></a>
     </div>
   </section>
 
@@ -363,6 +394,8 @@
       no_obs: "No se registraron observaciones visibles. Esto no garantiza la ausencia de riesgos: revisa siempre presencialmente.",
       limits_title: "⚠️ Lo que este análisis NO puede ver",
       report_title: "📄 Generar informe Word",
+      f_email: "Tu email", ph_email: "tu@email.com",
+      f_email_hint: "Necesario para descargar el informe. Primer informe gratis.",
       f_company: "Empresa (opcional)", ph_company: "Mi Empresa S.L.",
       f_site: "Centro de trabajo (opcional)", ph_site: "Planta de producción",
       f_inspector: "Responsable (opcional)", ph_inspector: "Nombre y apellidos",
@@ -372,6 +405,13 @@
       btn_reporting: "Generando…",
       report_ok: "Informe descargado. Recuerda validarlo presencialmente.",
       report_err: "No se pudo generar el informe.",
+      m_email_invalid: "Introduce un email válido para descargar el informe.",
+      done_title: "Informe descargado",
+      done_text: "Si quieres más análisis, contacta con nosotros.",
+      done_new: "Analizar otra foto",
+      blocked_title: "Has usado tu análisis gratuito",
+      blocked_text: "Contacta con nosotros para seguir usando VETLLA.",
+      blocked_cta: "Contactar",
       footer: "VETLLA · Herramienta de apoyo para informes de seguridad industrial.",
       menu_language: "Idioma",
       m_bad_format: "Formato no válido. Usa JPG, PNG o WEBP.",
@@ -404,6 +444,8 @@
       no_obs: "No visible observations recorded. This does not guarantee the absence of risks: always check on-site.",
       limits_title: "⚠️ What this analysis CANNOT see",
       report_title: "📄 Generate Word report",
+      f_email: "Your email", ph_email: "you@email.com",
+      f_email_hint: "Required to download the report. First report free.",
       f_company: "Company (optional)", ph_company: "My Company Ltd.",
       f_site: "Work site (optional)", ph_site: "Production plant",
       f_inspector: "Responsible (optional)", ph_inspector: "Full name",
@@ -413,6 +455,13 @@
       btn_reporting: "Generating…",
       report_ok: "Report downloaded. Remember to validate it on-site.",
       report_err: "The report could not be generated.",
+      m_email_invalid: "Enter a valid email to download the report.",
+      done_title: "Report downloaded",
+      done_text: "If you want more analyses, contact us.",
+      done_new: "Analyse another photo",
+      blocked_title: "You have used your free analysis",
+      blocked_text: "Contact us to keep using VETLLA.",
+      blocked_cta: "Contact us",
       footer: "VETLLA · Support tool for industrial safety reports.",
       menu_language: "Language",
       m_bad_format: "Invalid format. Use JPG, PNG or WEBP.",
@@ -445,6 +494,8 @@
       no_obs: "No s'han registrat observacions visibles. Això no garanteix l'absència de riscos: revisa sempre presencialment.",
       limits_title: "⚠️ Què NO pot veure aquesta anàlisi",
       report_title: "📄 Genera informe Word",
+      f_email: "El teu email", ph_email: "el_teu@email.com",
+      f_email_hint: "Necessari per descarregar l'informe. Primer informe gratis.",
       f_company: "Empresa (opcional)", ph_company: "La meva Empresa SL",
       f_site: "Centre de treball (opcional)", ph_site: "Planta de producció",
       f_inspector: "Responsable (opcional)", ph_inspector: "Nom i cognoms",
@@ -454,6 +505,13 @@
       btn_reporting: "Generant…",
       report_ok: "Informe descarregat. Recorda validar-lo presencialment.",
       report_err: "No s'ha pogut generar l'informe.",
+      m_email_invalid: "Introdueix un email vàlid per descarregar l'informe.",
+      done_title: "Informe descarregat",
+      done_text: "Si vols més anàlisis, contacta amb nosaltres.",
+      done_new: "Analitzar una altra foto",
+      blocked_title: "Has fet servir la teva anàlisi gratuïta",
+      blocked_text: "Contacta amb nosaltres per seguir fent servir VETLLA.",
+      blocked_cta: "Contactar",
       footer: "VETLLA · Eina de suport per a informes de seguretat industrial.",
       menu_language: "Idioma",
       m_bad_format: "Format no vàlid. Fes servir JPG, PNG o WEBP.",
@@ -530,6 +588,7 @@
   // ---------------------------------------------------------------------
   // Lógica principal
   // ---------------------------------------------------------------------
+  const reportBox = $("reportBox"), reportDone = $("reportDone"), reportBlocked = $("reportBlocked");
   const dropzone = $("dropzone"), fileInput = $("fileInput");
   const previewWrap = $("previewWrap"), preview = $("preview"), previewImg = $("previewImg");
   const analyzeBtn = $("analyzeBtn"), resetBtn = $("resetBtn"), reportBtn = $("reportBtn");
@@ -638,18 +697,46 @@ resetBtn.addEventListener("click", () => {
     results.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function isValidEmail(v) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+  }
+
+  function showBlockedPanel() {
+    reportBox.style.display = "none";
+    reportBlocked.style.display = "block";
+    reportDone.style.display = "none";
+    reportBlocked.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function showDonePanel() {
+    reportBox.style.display = "none";
+    reportDone.style.display = "block";
+    reportBlocked.style.display = "none";
+    reportDone.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   reportBtn.addEventListener("click", async () => {
     if (!lastAnalysis) return;
+    const t = I18N[lang];
+
+    const emailInput = $("userEmail");
+    const userEmail = emailInput.value.trim();
+    if (!isValidEmail(userEmail)) {
+      showToast(t.m_email_invalid, true);
+      emailInput.focus();
+      return;
+    }
+
     // Usa SIEMPRE el idioma con el que se hizo el análisis (analysisLang), no el idioma
     // que la interfaz tenga seleccionado en este momento. Evita informes con la estructura
     // en un idioma y el contenido de la IA en otro si el usuario cambia el selector entre
     // analizar y descargar.
     const reportLang = analysisLang || lang;
-    const t = I18N[lang];
     reportBtn.disabled = true; reportBtn.textContent = t.btn_reporting;
     try {
       const form = new FormData();
       form.append("payload", JSON.stringify(lastAnalysis));
+      form.append("email", userEmail);
       form.append("empresa", $("empresa").value);
       form.append("centro", $("centro").value);
       form.append("responsable", $("responsable").value);
@@ -658,7 +745,13 @@ resetBtn.addEventListener("click", () => {
       form.append("lang", reportLang);
       if (currentFile) form.append("image", currentFile);
       const res = await fetch("/api/report", { method: "POST", body: form });
+
+      if (res.status === 403) {
+        showBlockedPanel();
+        return;
+      }
       if (!res.ok) throw new Error();
+
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -666,12 +759,24 @@ resetBtn.addEventListener("click", () => {
       a.download = ({es:"Informe_seguridad_VETLLA.docx", en:"VETLLA_safety_report.docx", ca:"Informe_seguretat_VETLLA.docx"})[reportLang];
       a.click();
       URL.revokeObjectURL(url);
-      showToast(t.report_ok);
+      showDonePanel();
     } catch {
       showToast(t.report_err, true);
     } finally {
       reportBtn.disabled = false; reportBtn.textContent = t.btn_report;
     }
+  });
+
+  $("newAnalysisBtn").addEventListener("click", () => { location.reload(); });
+
+  $("blockedContactBtn").addEventListener("click", (e) => {
+    e.preventDefault();
+    const emailVal = $("userEmail").value.trim();
+    const subject = encodeURIComponent("Quiero seguir usando VETLLA");
+    const body = encodeURIComponent(
+      "Hola, ya he usado mi análisis gratuito y me gustaría seguir usando VETLLA.\n\nMi email: " + emailVal
+    );
+    window.location.href = "mailto:fermc1983@gmail.com?subject=" + subject + "&body=" + body;
   });
 
   function showToast(msg, isError = false) {
