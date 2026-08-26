@@ -91,6 +91,8 @@
   }
   .hero p.sub { font-size: 1.05rem; color: var(--muted); max-width: 620px;
     margin: 0 auto 2rem; }
+  .trust-bullets { font-size: .78rem; font-weight: 600; color: var(--navy);
+    letter-spacing: 0; margin: 0 0 1.2rem; }
   .hero-ctas { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
   .hero .reassure { font-size: .82rem; color: var(--muted); font-weight: 500; }
   .hero .reassure b { color: var(--gris); font-weight: 600; }
@@ -220,6 +222,8 @@
   @media (max-width: 860px) {
     .nav-links { display: none; }
     .menu-toggle { display: flex; align-items: center; justify-content: center; }
+    .hero { padding: 2.2rem 0 2.8rem; }
+    .trust-bullets { font-size: .72rem; white-space: normal; letter-spacing: -.005em; line-height: 1.4; }
     .compare, .steps, .levels, .cards { grid-template-columns: 1fr; }
     .proof { padding: 1.8rem; }
     .quote p { font-size: 1.05rem; }
@@ -262,10 +266,10 @@
     <div class="eyebrow" data-i18n="hero_eyebrow"></div>
     <h1 data-i18n="hero_h1"></h1>
     <p class="sub" data-i18n="hero_sub"></p>
+    <p class="trust-bullets" data-i18n="hero_trust"></p>
     <div class="hero-ctas">
       <a href="/app" class="btn btn-primary btn-lg" data-i18n="hero_cta1"></a>
     </div>
-    <p class="reassure" data-i18n="hero_reassure"></p>
   </div>
 </header>
 
@@ -437,9 +441,9 @@
       nav_how: "Cómo funciona", nav_pricing: "Precios", nav_login: "Acceder", nav_cta: "Acceso de prueba",
       hero_eyebrow: "Para técnicos y responsables de PRL en industria",
       hero_h1: "Tu visita de seguridad convertida en informe profesional en menos de 2 minutos.",
-      hero_sub: "Sube una foto de tu instalación. VETLLA detecta los riesgos, los clasifica por nivel de gravedad y genera un informe Word listo para enviar — compatible con RD 39/1997 e ISO 45001. Sin técnico externo. Sin esperas.",
-      hero_cta1: "Analizar mi primera foto — acceso de prueba",
-      hero_reassure: "Sin tarjeta de crédito · Informe descargable al instante",
+      hero_sub: "Solo necesitas una foto: la IA hace el resto.",
+      hero_trust: "✓ Sin registro · ✓ Resultado en 2 minutos · ✓ Conforme RD 39/1997",
+      hero_cta1: "Analizar mi primera foto — gratis",
       prob_eyebrow: "El problema",
       prob_title: "¿Cuánto tarda hoy una visita de seguridad en convertirse en un informe digitalizado con fotos que puedas usar? ¿Y si pasaran solo dos minutos?",
       prob_body: "La mayoría de pequeñas y medianas fábricas cumplen el expediente con una visita anual de seguridad. El informe llega tarde, no tiene evidencia fotográfica, no es comparable con periodos anteriores y no sirve para tomar decisiones reales. Resultado: cubres el papel, pero no tienes vigilancia real de tu instalación.",
@@ -500,9 +504,9 @@
       nav_how: "How it works", nav_pricing: "Pricing", nav_login: "Log in", nav_cta: "Trial access",
       hero_eyebrow: "For OSH technicians and safety managers in industry",
       hero_h1: "Your safety walk turned into a professional report in under 2 minutes.",
-      hero_sub: "Upload a photo of your facility. VETLLA detects the risks, classifies them by severity and generates a Word report ready to send — compatible with Spanish RD 39/1997 and ISO 45001. No external technician. No waiting.",
-      hero_cta1: "Analyse my first photo — trial access",
-      hero_reassure: "No credit card · Report downloadable instantly",
+      hero_sub: "Just one photo: the AI does the rest.",
+      hero_trust: "✓ No sign-up · ✓ Result in 2 minutes · ✓ Compliant with RD 39/1997",
+      hero_cta1: "Analyse my first photo — free",
       prob_eyebrow: "The problem",
       prob_title: "How long does it take today for a safety walk to become a digitised report with photos you can actually use? What if it only took two minutes?",
       prob_body: "Most small and medium factories tick the box with a single annual safety visit. The report arrives late, has no photographic evidence, isn't comparable to previous periods and doesn't support real decisions. The result: you cover the paperwork, but you have no real oversight of your facility.",
@@ -563,9 +567,9 @@
       nav_how: "Com funciona", nav_pricing: "Preus", nav_login: "Accedir", nav_cta: "Accés de prova",
       hero_eyebrow: "Per a tècnics i responsables de PRL a la indústria",
       hero_h1: "La teva visita de seguretat convertida en informe professional en menys de 2 minuts.",
-      hero_sub: "Puja una foto de la teva instal·lació. VETLLA detecta els riscos, els classifica per nivell de gravetat i genera un informe Word llest per enviar — compatible amb el RD 39/1997 i la ISO 45001. Sense tècnic extern. Sense esperes.",
-      hero_cta1: "Analitzar la meva primera foto — accés de prova",
-      hero_reassure: "Sense targeta de crèdit · Informe descarregable a l'instant",
+      hero_sub: "Només necessites una foto: la IA fa la resta.",
+      hero_trust: "✓ Sense registre · ✓ Resultat en 2 minuts · ✓ Conforme RD 39/1997",
+      hero_cta1: "Analitzar la meva primera foto — gratis",
       prob_eyebrow: "El problema",
       prob_title: "Quant triga avui una visita de seguretat a convertir-se en un informe digitalitzat amb fotos que puguis fer servir? I si només trigués dos minuts?",
       prob_body: "La majoria de petites i mitjanes fàbriques compleixen l'expedient amb una visita anual de seguretat. L'informe arriba tard, no té evidència fotogràfica, no és comparable amb períodes anteriors i no serveix per prendre decisions reals. Resultat: cobreixes el paper, però no tens vigilància real de la teva instal·lació.",
