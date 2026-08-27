@@ -246,8 +246,9 @@
       VETLLA
     </a>
     <div class="nav-links">
-      <a href="#como-funciona" data-i18n="nav_how"></a>
+      <a href="/como-funciona" data-i18n="nav_how"></a>
       <a href="#precios" data-i18n="nav_pricing"></a>
+      <a href="/faq" data-i18n="nav_faq"></a>
       <a href="/app" data-i18n="nav_login"></a>
       <div class="lang-switch">
         <button data-lang="es">ES</button><span class="sep">/</span><button data-lang="en">EN</button>
@@ -354,7 +355,7 @@
         <div class="price" data-i18n="price_easy_price"></div>
         <div class="price-note" data-i18n="price_easy_note"></div>
         <ul id="easyFeatures"></ul>
-        <a href="/app" class="btn btn-outline" data-i18n="price_easy_cta"></a>
+        <button type="button" class="btn btn-outline" id="buyEasyBtn" data-i18n="price_easy_cta"></button>
       </div>
       <!-- Comfort -->
       <div class="card featured">
@@ -364,7 +365,7 @@
         <div class="price" data-i18n="price_comfort_price"></div>
         <div class="price-note" data-i18n="price_comfort_note"></div>
         <ul id="comfortFeatures"></ul>
-        <a href="/app" class="btn btn-primary" data-i18n="price_comfort_cta"></a>
+        <button type="button" class="btn btn-primary" id="comfortBtn" data-i18n="price_comfort_cta"></button>
       </div>
       <!-- Enterprise -->
       <div class="card">
@@ -373,7 +374,7 @@
         <div class="price" data-i18n="price_ent_price"></div>
         <div class="price-note" data-i18n="price_ent_note"></div>
         <ul id="entFeatures"></ul>
-        <a href="/app" class="btn btn-outline" data-i18n="price_ent_cta"></a>
+        <button type="button" class="btn btn-outline" id="enterpriseBtn" data-i18n="price_ent_cta"></button>
       </div>
     </div>
     <div class="try-first">
@@ -438,7 +439,10 @@
 (() => {
   const I18N = {
     es: {
-      nav_how: "Cómo funciona", nav_pricing: "Precios", nav_login: "Acceder", nav_cta: "Acceso de prueba",
+      nav_how: "Cómo funciona", nav_pricing: "Precios", nav_faq: "FAQ", nav_login: "Acceder", nav_cta: "Acceso de prueba",
+      pay_unavailable: "El pago online todavía no está activo. Escríbenos y te lo gestionamos.",
+      pay_error: "No se pudo iniciar el pago. Inténtalo de nuevo en unos minutos.",
+      pay_loading: "Conectando…",
       hero_eyebrow: "Para técnicos y responsables de PRL en industria",
       hero_h1: "Tu visita de seguridad convertida en informe profesional en menos de 2 minutos.",
       hero_sub: "Solo necesitas una foto: la IA hace el resto.",
@@ -501,7 +505,10 @@
       foot_copy: "© 2026 VETLLA · Hecho en España",
     },
     en: {
-      nav_how: "How it works", nav_pricing: "Pricing", nav_login: "Log in", nav_cta: "Trial access",
+      nav_how: "How it works", nav_pricing: "Pricing", nav_faq: "FAQ", nav_login: "Log in", nav_cta: "Trial access",
+      pay_unavailable: "Online payment is not active yet. Write to us and we will sort it out.",
+      pay_error: "Could not start the payment. Please try again in a few minutes.",
+      pay_loading: "Connecting…",
       hero_eyebrow: "For OSH technicians and safety managers in industry",
       hero_h1: "Your safety walk turned into a professional report in under 2 minutes.",
       hero_sub: "Just one photo: the AI does the rest.",
@@ -564,7 +571,10 @@
       foot_copy: "© 2026 VETLLA · Made in Spain",
     },
     ca: {
-      nav_how: "Com funciona", nav_pricing: "Preus", nav_login: "Accedir", nav_cta: "Accés de prova",
+      nav_how: "Com funciona", nav_pricing: "Preus", nav_faq: "FAQ", nav_login: "Accedir", nav_cta: "Accés de prova",
+      pay_unavailable: "El pagament en línia encara no està actiu. Escriu-nos i t'ho gestionem.",
+      pay_error: "No s'ha pogut iniciar el pagament. Torna-ho a provar d'aquí a uns minuts.",
+      pay_loading: "Connectant…",
       hero_eyebrow: "Per a tècnics i responsables de PRL a la indústria",
       hero_h1: "La teva visita de seguretat convertida en informe professional en menys de 2 minuts.",
       hero_sub: "Només necessites una foto: la IA fa la resta.",
@@ -733,6 +743,58 @@
     );
     window.location.href = "mailto:fermc1983@gmail.com?subject=" + subject + "&body=" + body;
   });
+
+  // --- Tier Easy: compra del bono vía Stripe Checkout ---------------------
+  // Pide al backend una sesión de pago y redirige a la URL de Stripe. El
+  // email lo introduce la persona dentro del propio Checkout de Stripe (modo
+  // invitado), así que aquí no hace falta pedir nada ni crear cuenta.
+  $("#buyEasyBtn").addEventListener("click", async () => {
+    const t = I18N[lang];
+    const btn = $("#buyEasyBtn");
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = t.pay_loading;
+    try {
+      const res = await fetch("/api/checkout/easy", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 503) {
+        // Stripe aún no configurado: se ofrece la vía manual en vez de
+        // dejar al usuario con un botón que no hace nada.
+        alert(t.pay_unavailable);
+        contactoManual("Quiero comprar el bono Easy (5 informes)");
+        return;
+      }
+      if (!res.ok || !data.checkout_url) throw new Error("sin url");
+      window.location.href = data.checkout_url;
+    } catch {
+      alert(t.pay_error);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+
+  // --- Tier Comfort: captura de interés TEMPORAL --------------------------
+  // Comfort necesita cuentas de usuario con contraseña y base de datos
+  // (arquitectura Organización -> Usuario) que todavía no existen. Hasta
+  // entonces se recoge el interés por correo en lugar de simular un alta
+  // que no podríamos completar.
+  $("#comfortBtn").addEventListener("click", () => {
+    contactoManual("Me interesa el plan Comfort (29€/mes)");
+  });
+
+  // --- Tier Enterprise: contacto comercial (modelo intencional) -----------
+  $("#enterpriseBtn").addEventListener("click", () => {
+    contactoManual("Consulta sobre el plan Enterprise");
+  });
+
+  function contactoManual(asunto) {
+    const body = encodeURIComponent(
+      asunto + "\n\nHola, me gustaría más información.\n\nMi email de contacto: "
+    );
+    window.location.href = "mailto:fermc1983@gmail.com?subject=" +
+      encodeURIComponent(asunto + " — VETLLA") + "&body=" + body;
+  }
 
   applyLang();
 })();
