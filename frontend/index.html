@@ -43,6 +43,10 @@
     position: sticky; top: 0; z-index: 30;
     box-shadow: 0 2px 12px rgba(0,0,0,.18);
   }
+  .brand-link { display: flex; align-items: center; gap: .85rem; text-decoration: none;
+    color: inherit; border-radius: 10px; }
+  .brand-link:hover .logo-mark { filter: brightness(1.08); }
+  .brand-link:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
   .logo-mark {
     width: 36px; height: 36px; background: var(--naranja);
     border-radius: 9px; display: flex; align-items: center;
@@ -211,6 +215,12 @@
   .report-box { background: var(--surface); border: 1px solid var(--border);
     border-radius: 12px; padding: 1.2rem; margin-top: 1.5rem; }
   .field-hint { display: block; font-size: .74rem; color: var(--muted); margin-top: .3rem; }
+  .purchase-banner { display: flex; gap: .9rem; align-items: flex-start;
+    background: #f2fbf5; border: 1px solid #c9ecd4; border-radius: 12px;
+    padding: 1rem 1.1rem; margin-bottom: 1.2rem; }
+  .purchase-banner strong { font-size: .95rem; color: var(--text); }
+  .purchase-banner p { font-size: .85rem; color: var(--muted); margin-top: .2rem; }
+  .purchase-banner .state-icon { margin: 0; width: 30px; height: 30px; font-size: 1rem; flex-shrink: 0; }
   .report-done, .report-blocked { border-radius: 12px; padding: 1.6rem 1.4rem;
     margin-top: 1.5rem; text-align: center; }
   .report-done { background: #f2fbf5; border: 1px solid #c9ecd4; }
@@ -243,15 +253,17 @@
 </head>
 <body>
 <header>
-  <div class="logo-mark">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/>
-    </svg>
-  </div>
-  <div>
-    <h1>VETLLA</h1>
-    <div class="tag" data-i18n="tagline"></div>
-  </div>
+  <a href="/" class="brand-link" aria-label="VETLLA — ir al inicio">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/>
+      </svg>
+    </div>
+    <div>
+      <h1>VETLLA</h1>
+      <div class="tag" data-i18n="tagline"></div>
+    </div>
+  </a>
   <div class="header-right">
     <div class="menu-wrap">
       <button class="menu-btn" id="menuBtn" aria-label="Menú" aria-haspopup="true" aria-expanded="false">
@@ -270,6 +282,14 @@
 </header>
 
 <main>
+  <div class="purchase-banner" id="purchaseBanner" style="display:none">
+    <div class="state-icon ok">✓</div>
+    <div>
+      <strong data-i18n="purchase_title"></strong>
+      <p data-i18n="purchase_text"></p>
+    </div>
+  </div>
+
   <section class="hero">
     <h2 data-i18n="hero_title"></h2>
     <p data-i18n="hero_sub"></p>
@@ -394,6 +414,8 @@
       no_obs: "No se registraron observaciones visibles. Esto no garantiza la ausencia de riesgos: revisa siempre presencialmente.",
       limits_title: "⚠️ Lo que este análisis NO puede ver",
       report_title: "📄 Generar informe Word",
+      purchase_title: "¡Compra confirmada!",
+      purchase_text: "Tus 5 informes están vinculados al email que usaste al pagar. Escríbelo abajo al descargar y se descontarán de tu bono.",
       f_email: "Tu email", ph_email: "tu@email.com",
       f_email_hint: "Necesario para descargar el informe. Primer informe gratis.",
       f_company: "Empresa (opcional)", ph_company: "Mi Empresa S.L.",
@@ -444,6 +466,8 @@
       no_obs: "No visible observations recorded. This does not guarantee the absence of risks: always check on-site.",
       limits_title: "⚠️ What this analysis CANNOT see",
       report_title: "📄 Generate Word report",
+      purchase_title: "Purchase confirmed!",
+      purchase_text: "Your 5 reports are linked to the email you paid with. Enter it below when downloading and they will be deducted from your pack.",
       f_email: "Your email", ph_email: "you@email.com",
       f_email_hint: "Required to download the report. First report free.",
       f_company: "Company (optional)", ph_company: "My Company Ltd.",
@@ -494,6 +518,8 @@
       no_obs: "No s'han registrat observacions visibles. Això no garanteix l'absència de riscos: revisa sempre presencialment.",
       limits_title: "⚠️ Què NO pot veure aquesta anàlisi",
       report_title: "📄 Genera informe Word",
+      purchase_title: "Compra confirmada!",
+      purchase_text: "Els teus 5 informes estan vinculats a l'email que has fet servir en pagar. Escriu-lo a sota en descarregar i es descomptaran del teu bo.",
       f_email: "El teu email", ph_email: "el_teu@email.com",
       f_email_hint: "Necessari per descarregar l'informe. Primer informe gratis.",
       f_company: "Empresa (opcional)", ph_company: "La meva Empresa SL",
@@ -787,6 +813,19 @@ resetBtn.addEventListener("click", () => {
     return String(s ?? "").replace(/[&<>"']/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
+
+  // Si volvemos de Stripe tras pagar, confirmar la compra al usuario.
+  // Los créditos los carga el webhook de Stripe (fuente de verdad), no este
+  // redirect — por eso el texto no promete un número exacto por si el
+  // webhook aún no ha llegado en el instante de volver.
+  (function mostrarCompraSiProcede() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success") {
+      $("purchaseBanner").style.display = "flex";
+      // Limpiar la URL para que al recargar no se vuelva a mostrar.
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  })();
 
   applyLang();
 })();
