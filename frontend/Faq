@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preguntas frecuentes — VETLLA</title>
+<meta name="description" content="Preguntas frecuentes sobre VETLLA: análisis gratuitos, privacidad de las fotos, validez legal del informe, precios y funcionamiento.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1B2F4E; --naranja: #E8611A; --naranja-600: #c9521a; --gris: #4A5568;
+    --bg: #F7F8FA; --surface: #ffffff; --text: #1A202C;
+    --muted: #4A5568; --border: #e3e8ef;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg);
+    color: var(--text); line-height: 1.65; -webkit-font-smoothing: antialiased;
+    min-height: 100vh; display: flex; flex-direction: column; }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 0 1.25rem; width: 100%; }
+
+  nav { background: rgba(247,248,250,.9); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20; }
+  .nav-inner { display: flex; align-items: center; height: 64px; gap: 1rem; }
+  .brand { display: flex; align-items: center; gap: .55rem; font-weight: 800;
+    font-size: 1.25rem; letter-spacing: -.02em; color: var(--navy); }
+  .brand .mark { width: 30px; height: 30px; background: var(--naranja);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .brand .mark svg { width: 17px; height: 17px; }
+  .nav-cta { margin-left: auto; background: var(--naranja); color: #fff;
+    font-weight: 600; font-size: .88rem; padding: .55rem 1.1rem; border-radius: 10px; }
+  .nav-cta:hover { background: var(--naranja-600); }
+
+  main { flex: 1; padding: 3.5rem 0 4.5rem; }
+  .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--naranja); margin-bottom: .6rem; }
+  h1 { font-size: clamp(1.7rem, 4.5vw, 2.3rem); font-weight: 900; letter-spacing: -.03em;
+    line-height: 1.15; color: var(--navy); margin-bottom: .8rem; }
+  .lead { font-size: 1.02rem; color: var(--muted); margin-bottom: 2.5rem; max-width: 600px; }
+
+  .group-title { font-size: .78rem; font-weight: 700; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--gris); margin: 2.4rem 0 .4rem; }
+  .group-title:first-of-type { margin-top: 0; }
+
+  .faq-list { border-top: 1px solid var(--border); }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-q { width: 100%; text-align: left; background: none; border: none; cursor: pointer;
+    font: inherit; font-weight: 600; font-size: 1rem; color: var(--navy);
+    padding: 1.15rem 0; display: flex; justify-content: space-between;
+    align-items: center; gap: 1rem; }
+  .faq-q svg { flex-shrink: 0; width: 20px; height: 20px; color: var(--naranja);
+    transition: transform .2s; }
+  .faq-item.open .faq-q svg { transform: rotate(45deg); }
+  .faq-a { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+  .faq-a-inner { padding: 0 0 1.15rem; }
+  .faq-a p { font-size: .93rem; color: var(--muted); margin-bottom: .7rem; }
+  .faq-a p:last-child { margin-bottom: 0; }
+  .faq-a strong { color: var(--text); }
+  .faq-a a { color: var(--naranja); font-weight: 600; }
+  .faq-a a:hover { text-decoration: underline; }
+
+  .cta-box { text-align: center; margin-top: 3.5rem; padding-top: 2.5rem;
+    border-top: 1px solid var(--border); }
+  .cta-box h3 { font-size: 1.2rem; font-weight: 800; color: var(--navy); margin-bottom: .5rem; }
+  .cta-box p { font-size: .93rem; color: var(--muted); margin-bottom: 1.3rem; }
+  .btn { display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 600; border-radius: 12px; padding: .85rem 1.6rem; font-size: 1rem;
+    background: var(--naranja); color: #fff; transition: background .18s; }
+  .btn:hover { background: var(--naranja-600); }
+  .back { display: inline-block; margin-top: 1.5rem; font-size: .9rem;
+    font-weight: 600; color: var(--naranja); }
+  .back:hover { text-decoration: underline; }
+
+  footer { background: var(--navy); color: #7f93b0; padding: 1.5rem 0; font-size: .82rem; }
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap nav-inner">
+    <a href="/" class="brand">
+      <span class="mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2 4 5v6c0 5 3.5 8 8 11 4.5-3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/>
+        </svg>
+      </span>
+      VETLLA
+    </a>
+    <a href="/app" class="nav-cta">Probar ahora</a>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+    <div class="eyebrow">Preguntas frecuentes</div>
+    <h1>Todo lo que quieres saber antes de probarlo</h1>
+    <p class="lead">Y si falta algo, escríbenos: respondemos personalmente.</p>
+
+    <div class="group-title">Uso y precios</div>
+    <div class="faq-list" id="faqUso"></div>
+
+    <div class="group-title">Privacidad y datos</div>
+    <div class="faq-list" id="faqPrivacidad"></div>
+
+    <div class="group-title">Validez y alcance</div>
+    <div class="faq-list" id="faqValidez"></div>
+
+    <div class="group-title">Aspectos técnicos</div>
+    <div class="faq-list" id="faqTecnico"></div>
+
+    <div class="cta-box">
+      <h3>¿Te queda alguna duda?</h3>
+      <p>Escríbenos y te respondemos personalmente.</p>
+      <a href="mailto:fermc1983@gmail.com?subject=Consulta%20sobre%20VETLLA" class="btn">Contactar</a>
+      <br>
+      <a href="/" class="back">← Volver al inicio</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">© 2026 VETLLA · Hecho en España</div>
+</footer>
+
+<script>
+(() => {
+  const GRUPOS = {
+    faqUso: [
+      ["¿Cuántos análisis gratuitos tengo?",
+       "<p>Uno gratis para probar. Si quieres seguir usándolo, contacta con nosotros.</p><p>También puedes comprar el <strong>bono Easy</strong>: 5 informes por 15€, válido 12 meses desde la compra, sin suscripción ni permanencia.</p>"],
+      ["¿Tengo que registrarme o crear una cuenta?",
+       "<p>Para probarlo, no. Analizas la foto sin registro y solo se te pide un email en el momento de descargar el informe, que es el que identifica tu uso.</p><p>Si compras el bono Easy, tampoco necesitas contraseña: el email con el que pagas queda vinculado a tu bono automáticamente.</p>"],
+      ["¿Hay permanencia o me cobran sin avisar?",
+       "<p>El bono Easy es un pago único, no una suscripción: no se renueva solo ni se cobra nada de forma recurrente.</p><p>El plan Comfort sí es mensual, y se puede cancelar cuando quieras.</p>"],
+      ["¿Qué pasa si no uso los 5 informes del bono?",
+       "<p>El bono es válido durante 12 meses desde la fecha de compra. Puedes usar los informes cuando los necesites dentro de ese periodo, sin ritmo mínimo.</p>"],
+      ["¿Puedo probarlo antes de comprar nada?",
+       "<p>Sí, y es lo que recomendamos. Sube una foto de tu instalación, mira el resultado en pantalla y descarga el informe completo para juzgar si te sirve.</p>"]
+    ],
+    faqPrivacidad: [
+      ["¿Mis fotos están seguras? ¿Las guardáis?",
+       "<p>Las fotos se procesan para generar el análisis y no se almacenan en nuestros servidores.</p><p>Puedes consultar los detalles en nuestra <a href='/privacidad'>política de privacidad</a>.</p>"],
+      ["¿Usáis mis imágenes para entrenar inteligencia artificial?",
+       "<p>No. Las imágenes se usan exclusivamente para generar tu informe y en ningún caso se emplean para entrenar modelos de inteligencia artificial de terceros.</p>"],
+      ["¿Qué pasa si en la foto aparecen trabajadores?",
+       "<p>Puede ocurrir de forma incidental al fotografiar una zona de trabajo. Cuando tu empresa contrata VETLLA, la empresa es la responsable del tratamiento de esas imágenes y VETLLA actúa como encargada, con un contrato de encargado de tratamiento (DPA) entre ambas partes.</p><p>Corresponde a la empresa informar a su plantilla conforme a los artículos 13 y 14 del RGPD.</p>"],
+      ["¿Dónde se alojan los datos?",
+       "<p>En servidores dentro del Espacio Económico Europeo, en la región EU West (Ámsterdam, Países Bajos), con cifrado en tránsito y en reposo.</p>"]
+    ],
+    faqValidez: [
+      ["¿El informe es válido legalmente?",
+       "<p>El informe sigue la estructura del RD 39/1997 y recoge la trazabilidad que exige una observación de seguridad. Su validez depende de que sea revisado y firmado por un técnico competente.</p><p>VETLLA no firma por ti: documenta, ordena y te deja el documento listo para que lo valides.</p>"],
+      ["¿Esto sustituye a mi servicio de prevención (SPA)?",
+       "<p>No, y no pretende hacerlo. VETLLA complementa tu servicio de prevención: te permite hacer seguimiento entre visitas del SPA, con evidencia fotográfica y con la frecuencia que tú decidas.</p>"],
+      ["¿Sustituye a la evaluación de riesgos obligatoria?",
+       "<p>No. La evaluación de riesgos laborales exigida por la Ley 31/1995 y el RD 39/1997 debe realizarla personal cualificado. VETLLA documenta observaciones de seguridad visibles, que es una cosa distinta y complementaria.</p>"],
+      ["¿La IA puede equivocarse?",
+       "<p>Sí, como cualquier herramienta de análisis. VETLLA es un asistente, no un sustituto del técnico. Cada informe incluye un aviso claro y un apartado de limitaciones que deja constancia de lo que no puede evaluarse desde una fotografía.</p><p>La validación final es siempre responsabilidad del firmante.</p>"],
+      ["¿Qué NO puede detectar desde una foto?",
+       "<p>Ruido, exposición a agentes químicos, carga física y factores ergonómicos dinámicos, instalaciones ocultas o cableado interno, y factores organizativos como formación o mantenimiento.</p><p>Todo eso aparece explícitamente listado en cada informe, para que nadie asuma una cobertura que no existe.</p>"]
+    ],
+    faqTecnico: [
+      ["¿Necesito instalar algo?",
+       "<p>Nada. Funciona desde el navegador, en móvil u ordenador. No hay app que descargar ni software que instalar en equipos de empresa.</p>"],
+      ["¿Funciona desde el móvil en planta?",
+       "<p>Sí, está pensado para eso. Puedes fotografiar la zona con el móvil durante la visita y generar el informe ahí mismo.</p>"],
+      ["¿En qué formato recibo el informe?",
+       "<p>En Word (.docx), editable. Incluye la foto analizada, las observaciones clasificadas por gravedad, la acción recomendada, el plazo estimado y los campos de firma.</p><p>Al ser editable, puedes ajustar cualquier cosa antes de firmarlo.</p>"],
+      ["¿En qué idiomas está disponible?",
+       "<p>Español e inglés, tanto la interfaz como el informe generado.</p>"]
+    ]
+  };
+
+  const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+
+  function esc(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  Object.entries(GRUPOS).forEach(([id, preguntas]) => {
+    const cont = document.getElementById(id);
+    if (!cont) return;
+    // La pregunta se escapa; la respuesta es HTML propio y controlado, no
+    // entrada de usuario, así que se inserta tal cual para permitir enlaces.
+    cont.innerHTML = preguntas.map(([q, a]) => `
+      <div class="faq-item">
+        <button class="faq-q">${esc(q)}${ICON}</button>
+        <div class="faq-a"><div class="faq-a-inner">${a}</div></div>
+      </div>`).join("");
+  });
+
+  document.querySelectorAll(".faq-q").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const item = btn.closest(".faq-item");
+      const abierto = item.classList.contains("open");
+      document.querySelectorAll(".faq-item").forEach(i => {
+        i.classList.remove("open");
+        i.querySelector(".faq-a").style.maxHeight = null;
+      });
+      if (!abierto) {
+        item.classList.add("open");
+        const a = item.querySelector(".faq-a");
+        a.style.maxHeight = a.scrollHeight + "px";
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
