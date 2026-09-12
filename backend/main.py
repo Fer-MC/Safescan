@@ -39,6 +39,7 @@ import json
 import logging
 
 from fastapi import FastAPI, File, Form, Request, UploadFile
+from fastapi.responses import RedirectResponse as _RedirectResponse  # usado en el middleware de dominio
 from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 
 from config import settings, validate_runtime
@@ -55,6 +56,34 @@ logging.basicConfig(level=logging.INFO if not settings.debug else logging.DEBUG)
 logger = logging.getLogger("vetlla")
 
 app = FastAPI(title=settings.app_name)
+
+# --- Redirección de dominios secundarios al dominio principal ------------
+# vetya.es cubre la confusión ll/y del castellano pero no debe servir
+# contenido propio: cualquier visita ahí (o a www.vetya.es) se redirige con
+# un 301 permanente a vetlla.es, conservando ruta y query string.
+#
+# Se hace a nivel de aplicación (no solo de DNS/registrador) para que
+# vetya.es tenga también un certificado SSL válido -- si el redirect fuera
+# solo del registrador y ese dominio no tuviera su propio certificado,
+# entrar por https://vetya.es podría dar un aviso de seguridad antes de
+# llegar siquiera a redirigir.
+PRIMARY_DOMAIN = os.getenv("PRIMARY_DOMAIN", "vetlla.es").strip().lower()
+SECONDARY_DOMAINS = {
+    d.strip().lower()
+    for d in os.getenv("SECONDARY_DOMAINS", "vetya.es,www.vetya.es").split(",")
+    if d.strip()
+}
+
+
+@app.middleware("http")
+async def redirect_secondary_domains(request: Request, call_next):
+    host = request.headers.get("host", "").split(":")[0].lower()
+    if host in SECONDARY_DOMAINS:
+        target = f"https://{PRIMARY_DOMAIN}{request.url.path}"
+        if request.url.query:
+            target += f"?{request.url.query}"
+        return _RedirectResponse(url=target, status_code=301)
+    return await call_next(request)
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 
