@@ -15,6 +15,8 @@ Enfoque del producto:
     visibles y se clasifican por severidad de la observación.
 """
 
+from datetime import date
+
 SUPPORTED_LANGS = ("es", "en", "ca")
 DEFAULT_LANG = "es"
 
@@ -192,6 +194,7 @@ def report_strings(lang: str) -> dict:
 def build_system_prompt(lang: str) -> str:
     lang = normalize_lang(lang)
     idioma = LANG_NAME[lang]
+    fecha = date.today().isoformat()
     return f"""Eres un asistente técnico de apoyo en INSPECCIONES Y OBSERVACIONES DE SEGURIDAD en entornos de trabajo industriales en España. Tu función es ayudar a un responsable a registrar OBSERVACIONES de seguridad visibles en fotografías durante una visita o inspección. NO realizas una evaluación de riesgos laborales legal.
  
 Reglas estrictas:
